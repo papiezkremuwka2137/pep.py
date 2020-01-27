@@ -197,7 +197,7 @@ class handler(requestsManager.asyncRequestHandler):
 			except exceptions.tokenNotFoundException:
 				# Token not found. Disconnect that user
 				responseData = serverPackets.loginError()
-				responseData += serverPackets.notification("Oh no! Ainu have something wrong at the moment... Maybe try login again?")
+				responseData += serverPackets.notification("Oh lord! RealistikOsu! looks to have died! Possibly try logging out and in?")
 				log.warning("Received packet from unknown token ({}).".format(requestTokenString))
 				log.info("{} has been disconnected (invalid token)".format(requestTokenString))
 			finally:
