@@ -98,11 +98,8 @@ def userPanel(userID, force = False):
 	else:
 		timezone = 24+userToken.timeOffset
 	# Custom Countries for Users
-	# 111 = Japan
-	if userID in (1000, 1106):
-		country = 111
-	else:
-		country = userToken.country
+	# I deleted them.
+	country = userToken.country
 	gameRank = userToken.gameRank
 	latitude = userToken.getLatitude()
 	longitude = userToken.getLongitude()
