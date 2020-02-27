@@ -72,16 +72,17 @@ def instantRestart(fro, chan, message):
 def faq(fro, chan, message):
 	# TODO: Unhardcode this
 	messages = {
-		"rules": "Please make sure to check (osu!thailand's rules)[https://ainu.pw/doc/rules].",
+		"rules": "Please make sure to check (RealistikOsu! rules)[https://ussr.pl/doc/rules].",
 		"swearing": "Please don't abuse swearing",
 		"spam": "Please don't spam",
 		"offend": "Please don't offend other players",
-		"github": "(osu!Ainu's Github page!)[https://github.com/osuthailand]",
+		"github": "(RealistikOsu! Github page!)[https://github.com/RealistikOsu]",
 		"discord": "(Join Ainu Discord!)[https://discord.gg/Qp3WQU8]",
-		"changelog": "Check the (changelog)[https://ainu.pw/changelog] !",
+		"changelog": "Check our (git repo)[https://github.com/RealistikOsu] for changes!",
 		"english": "Please keep this channel in english.",
 		"topic": "Can you please drop the topic and talk about something else?",
-		"lines": "Please try to keep your sentences on a single line to avoid getting silenced."
+		"lines": "Please try to keep your sentences on a single line to avoid getting silenced.",
+		"cheating": "Hacking is not permitted on RealistikOsu! If you spot someone cheating, report them to the staff or RealistikDash."
 	}
 	key = message[0].lower()
 	if key not in messages:
@@ -150,7 +151,7 @@ def kickAll(fro, chan, message):
 		if i in glob.tokens.tokens:
 			glob.tokens.tokens[i].kick()
 
-	return "Whoops! Rip everyone."
+	return "Whoops! Who needs players anyways?"
 
 def kick(fro, chan, message):
 	# Get parameters
@@ -173,7 +174,7 @@ def kick(fro, chan, message):
 def fokabotReconnect(fro, chan, message):
 	# Check if the bot is already connected
 	if glob.tokens.getTokenFromUserID(999) is not None:
-		return "{} is already connected to Bancho".format(glob.BOT_NAME)
+		return "{} is already connected to Rosu!".format(glob.BOT_NAME)
 
 	# Bot is not connected, connect it
 	fokabot.connect()
@@ -208,7 +209,7 @@ def silence(fro, chan, message):
 	elif unit == 'd':
 		silenceTime = int(amount) * 86400
 	else:
-		return "Invalid time unit (s/m/h/d)."
+		return "Invalid time format (s/m/h/d)."
 
 	# Max silence time is 7 days
 	if silenceTime > 604800:
@@ -224,7 +225,7 @@ def silence(fro, chan, message):
 		userUtils.silence(targetUserID, silenceTime, reason, userID)
 
 	# Log message
-	msg = "{} has been silenced for the following reason: {}".format(target, reason)
+	msg = "{} has been silenced for: {}".format(target, reason)
 	return msg
 
 def removeSilence(fro, chan, message):
