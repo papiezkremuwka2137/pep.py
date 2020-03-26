@@ -393,12 +393,12 @@ def systemStatus(fro, chan, message):
 	# Final message
 	letsVersion = glob.redis.get("lets:version")
 	if letsVersion is None:
-		letsVersion = "\_(-w-)_/"
+		letsVersion = "i dont know"
 	else:
 		letsVersion = letsVersion.decode("utf-8")
 	msg = "pep.py bancho server v{}\n".format(glob.VERSION)
-	msg += "LETS scores server v{}\n".format(letsVersion)
-	msg += "made by the osu!thailand\n"
+	msg += "LETS scores server\n"
+	msg += "RealistikOsu! version\n"
 	msg += "\n"
 	msg += "=== BANCHO STATS ===\n"
 	msg += "Connected users: {}\n".format(data["connectedUsers"])

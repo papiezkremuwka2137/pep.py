@@ -1,5 +1,5 @@
 ## pep.py
-This is Ripple's bancho server but osu!thailand forked edition. It handles:
+The Bancho RealistikOsu uses (pased on Ainu's version of pep.py by Ripple) It handles:
 - Client login
 - Online users listing and statuses
 - Public and private chat
