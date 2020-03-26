@@ -16,22 +16,22 @@ def forceUpdate():
 
 def loginBanned():
 	packets = packetHelper.buildPacket(packetIDs.server_userID, [[-1, dataTypes.SINT32]])
-	packets += notification("You are banned! I don't know what did you do but you can appeal after one month since your ban by contacting Discord! (You can join by going to the website!)")
+	packets += notification("You are banned! You can appeal 3 months after your ban on Discord (invite available at ussr.pl)")
 	return packets
 
 def loginLocked():
 	packets = packetHelper.buildPacket(packetIDs.server_userID, [[-1, dataTypes.SINT32]])
-	packets += notification("Well... Your account is locked but everything still in the website ya know? and uh... You can appeal us at Discord! (You can go to our website for the link!)")
+	packets += notification("Well... Your account is locked but everything is still safe.")
 	return packets
 
 def loginError():
 	return packetHelper.buildPacket(packetIDs.server_userID, [[-5, dataTypes.SINT32]])
 
 def loginCheats():
-	message = "You better quit cheating! >_< ~Aoba"
+	message = "BOT Chet spotted!"
 	packets = packetHelper.buildPacket(packetIDs.server_userID, [[-1, dataTypes.SINT32]])
 	packets += packetHelper.buildPacket(0x69, [[message, dataTypes.STRING]])
-	packets += notification("Please... don't login with cheats client... Play on cheating server instead of cheating on our server. Thank you.")
+	packets += notification("We don't like cheaters here at RealistikOsu! Consider yourself restricted.")
 	return packets
 
 def needSupporter():
@@ -109,10 +109,7 @@ def userPanel(userID, force = False):
 	userRank = 0
 	if username == glob.BOT_NAME:
 		userRank |= userRanks.MOD
-	# 1000 = Aoba's User ID
-	elif userID == 1000:
-		userRank |= userRanks.PEPPY
-	elif userID == 1106:
+	elif userUtils.isInPrivilegeGroup(userID, "owner"):
 		userRank |= userRanks.PEPPY
 	elif userUtils.isInPrivilegeGroup(userID, "developer"):
 		userRank |= userRanks.ADMIN

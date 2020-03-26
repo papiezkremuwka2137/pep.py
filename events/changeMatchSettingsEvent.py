@@ -26,31 +26,20 @@ def handle(userToken, packetData):
 		if userToken.userID != match.hostUserID:
 			return
 
-		# Some dank memes easter egg
+		# Realistik was her
 		memeTitles = [
-			"OWC 2020",
-			"AC is a duck",
-			"Dank memes",
-			"1337ms Ping",
-			"Iscriviti a Xenotoze",
-			"...e i marò?",
-			"Superman dies",
-			"The brace is on fire",
-			"print_foot()",
-			"#FREEZEBARKEZ",
-			"osu!thailand devs are actually cats",
-			"Thank Mr Shaural",
-			"NEVER GIVE UP",
-			"T I E D  W I T H  U N I T E D",
-			"HIGHEST HDHR LOBBY OF ALL TIME",
-			"This is gasoline and I set myself on fire",
-			"Everyone is cheating apparently",
-			"Kurwa mac",
-			"TATOE",
-			"This is not your drama landfill.",
-			"I like cheese",
-			"AOBA IS NOT A CAT HE IS A DO(N)G",
-			"Datingu startuato"
+			"I hate boxes",
+			"this text is funny",
+			"Hit kids not juul",
+			"dark is the best osu! player",
+			"I'm spiderman",
+			"DING DONG",
+			"matt from wii sports",
+			"Intel is an expensive space heater brand",
+			"she so shiny",
+			"im a freaking ferrari",
+			"Welp shouldnt have bought that switch then",
+			"RealistikBot hot"
 		]
 
 		# Set match name

@@ -77,7 +77,7 @@ def faq(fro, chan, message):
 		"spam": "Please don't spam",
 		"offend": "Please don't offend other players",
 		"github": "(RealistikOsu! Github page!)[https://github.com/RealistikOsu]",
-		"discord": "(Join Ainu Discord!)[https://discord.gg/Qp3WQU8]",
+		"discord": "(Join RealistikOsu Discord!)[https://discord.gg/87E2K46]",
 		"changelog": "Check our (git repo)[https://github.com/RealistikOsu] for changes!",
 		"english": "Please keep this channel in english.",
 		"topic": "Can you please drop the topic and talk about something else?",
