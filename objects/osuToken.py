@@ -66,14 +66,8 @@ class token:
 		self.spamRate = 0
 
 		# Stats cache
-		if userID == 1000:
-			self.actionID = actions.WATCHING
-		else:
-			self.actionID = actions.IDLE
-		if userID == 1000:
-			self.actionText = "HentaiHaven"
-		else:
-			self.actionText = ""
+		self.actionID = actions.IDLE
+		self.actionText = ""
 		self.actionMd5 = ""
 		self.actionMods = 0
 		self.gameMode = gameModes.STD

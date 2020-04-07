@@ -174,7 +174,7 @@ def kick(fro, chan, message):
 def fokabotReconnect(fro, chan, message):
 	# Check if the bot is already connected
 	if glob.tokens.getTokenFromUserID(999) is not None:
-		return "{} is already connected to Rosu!".format(glob.BOT_NAME)
+		return "{} is already connected to RealistikOsu!".format(glob.BOT_NAME)
 
 	# Bot is not connected, connect it
 	fokabot.connect()
