@@ -11,7 +11,7 @@ from objects import glob
 # Tillerino np regex, compiled only once to increase performance
 npRegex = re.compile("^https?:\\/\\/osu\\.ppy\\.sh\\/b\\/(\\d*)")
 
-def connect(timeOffset = 9):
+def connect():
 	"""
 	Connect FokaBot to Bancho
 
@@ -21,13 +21,13 @@ def connect(timeOffset = 9):
 	token = glob.tokens.addToken(999)
 	token.actionID = actions.IDLE
 	token.actionText = "\nWelcome to RealistikOsu!"
-	token.pp = 727
-	token.accuracy = 0.9885
-	token.playcount = 26956
-	token.totalScore = 237228316533
-	token.timeOffset = timeOffset
-	token.timezone = 24+token.timeOffset
-	token.country = 111
+	token.pp = 69
+	token.accuracy = 0.69
+	token.playcount = 69
+	token.totalScore = 1337
+	token.timeOffset = 0
+	token.timezone = 24
+	token.country = 110 #i cant figure out what this is...
 	glob.streams.broadcast("main", serverPackets.userPanel(999))
 	glob.streams.broadcast("main", serverPackets.userStats(999))
 
