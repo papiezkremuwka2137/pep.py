@@ -26,8 +26,8 @@ def connect():
 	token.playcount = 69
 	token.totalScore = 1337
 	token.timeOffset = 0
-	token.timezone = 24
-	token.country = 110 #i cant figure out what this is...
+	token.timezone = 24 + 2
+	token.country = 2 #this is retared, fuck it im keeping it as europe, couldnt find the uk as its ordered stupidly
 	glob.streams.broadcast("main", serverPackets.userPanel(999))
 	glob.streams.broadcast("main", serverPackets.userStats(999))
 
