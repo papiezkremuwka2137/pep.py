@@ -437,11 +437,11 @@ class match:
 
 		# Set vinse id if needed
 		chanName = "#multi_{}".format(self.matchID)
-		if self.vinseID is None:
-			self.vinseID = (int(time.time()) // (60 * 15)) << 32 | self.matchID
-			chat.sendMessage(glob.BOT_NAME, chanName, "Match history available [{} here]".format(
-				"https://multi.bigtu.vip/match/{}".format(self.vinseID)
-			))
+		#if self.vinseID is None:
+		#	self.vinseID = (int(time.time()) // (60 * 15)) << 32 | self.matchID
+		#	chat.sendMessage(glob.BOT_NAME, chanName, "Match history available [{} here]".format(
+		#		"https://vinse.ussr.pl/match/{}".format(self.vinseID)
+		#	))
 		if not self.bloodcatAlert:
 			chat.sendMessage(
 				glob.BOT_NAME,

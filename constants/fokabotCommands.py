@@ -1438,7 +1438,7 @@ commands = [
 		"callback": report
 	}, {
 		"trigger": "!help",
-		"response": "Click (here)[https://ainu.pw/index.php?p=16&id=4] for full command list"
+		"response": "Click (here)[https://ussr.pl/doc/4] for full command list"
 	}, {
 		"trigger": "!ppboard",
 		"syntax": "<relax/vanilla>",
