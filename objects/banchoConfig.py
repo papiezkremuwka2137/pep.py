@@ -37,7 +37,14 @@ class banchoConfig:
 		else:
 			imageURL = "https://i.ppy.sh/{}.png".format(mainMenuIcon["file_id"])
 			self.config["menuIcon"] = "{}|{}".format(imageURL, mainMenuIcon["url"])
-		self.config["loginNotification"] = glob.db.fetch("SELECT value_string FROM bancho_settings WHERE name = 'login_notification'")["value_string"]
+		#self.config["loginNotification"] = glob.db.fetch("SELECT value_string FROM bancho_settings WHERE name = 'login_notification'")["value_string"]
+		self.config["Quotes"] = [
+			"Don't forget to visit c.ussr.pl!",
+			"WE SERVE THE SOVIET UNION!",
+			"Ran by best VEVO channel!",
+			"Stay home!",
+			"Spelchecked!"
+		]
 
 
 	def setMaintenance(self, maintenance):

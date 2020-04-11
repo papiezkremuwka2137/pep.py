@@ -14,6 +14,7 @@ from helpers import locationHelper
 from helpers import kotrikhelper
 from objects import glob
 
+import random
 
 def handle(tornadoRequest):
 	# Data to return
@@ -150,8 +151,13 @@ def handle(tornadoRequest):
 			raise exceptions.banchoRestartingException()
 
 		# Send login notification before maintenance message
-		if glob.banchoConf.config["loginNotification"] != "":
-			responseToken.enqueue(serverPackets.notification(glob.banchoConf.config["loginNotification"]))
+		#if glob.banchoConf.config["loginNotification"] != "":
+
+		#creating notification
+		OnlineUsers = int(glob.redis.get("ripple:online_users").decode("utf-8"))
+		Notif = f"""- Online Users: {OnlineUsers}
+		- {random.choice(glob.banchoConf.config['Quotes'])}"""
+		responseToken.enqueue(serverPackets.notification(Notif))
 
 		# Maintenance check
 		if glob.banchoConf.config["banchoMaintenance"]:
