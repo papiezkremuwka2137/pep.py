@@ -262,7 +262,7 @@ def ban(fro, chan, message):
 	userID = userUtils.getID(fro)
 	if not targetUserID:
 		return "{}: user not found".format(target)
-	if targetUserID in (999, 1000):
+	if targetUserID in (999, 1000, 1001, 1002, 1005):
 		return "NO!"
 	# Set allowed to 0
 	userUtils.ban(targetUserID)
