@@ -60,6 +60,15 @@ if userToken.matchID != -1 and userToken.actionID != actions.MULTIPLAYING and us
 			userToken.relaxAnnounce = True
 			userToken.enqueue(serverPackets.notification("You're playing with Relax, we've changed the leaderboard to Relax."))
 		"""
+	#autopiloten
+	if bool(packetData["actionMods"] & 2048) == True:
+		userToken.relaxing = True
+		if userToken.actionID in (0, 1, 14):
+			UserText = packetData["actionText"] + "on Autopilot"
+		else:
+			UserText = packetData["actionText"] + " on Autopilot"
+		userToken.actionText = UserText
+		userToken.updateCachedStats()
 	else:
 		UserText = packetData["actionText"]
 		userToken.actionText = UserText
