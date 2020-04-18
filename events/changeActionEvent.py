@@ -62,7 +62,7 @@ if userToken.matchID != -1 and userToken.actionID != actions.MULTIPLAYING and us
 		"""
 	#autopiloten
 	if bool(packetData["actionMods"] & 2048) == True:
-		userToken.relaxing = True
+		userToken.autopiloting = True
 		if userToken.actionID in (0, 1, 14):
 			UserText = packetData["actionText"] + "on Autopilot"
 		else:
