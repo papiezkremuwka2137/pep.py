@@ -72,9 +72,10 @@ if userToken.matchID != -1 and userToken.actionID != actions.MULTIPLAYING and us
 		userToken.actionText = UserText
 		userToken.updateCachedStats()
 	else:
+		userToken.relaxing = False
+		userToken.autopiloting = False
 		UserText = packetData["actionText"]
 		userToken.actionText = UserText
-		userToken.relaxing = False
 		userToken.updateCachedStats()
 		"""
 		if userToken.relaxAnnounce == True:
