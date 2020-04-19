@@ -467,7 +467,7 @@ class token:
 			self.playcount = stats_relax["playcount"]
 			self.totalScore = stats_relax["totalScore"]
 
-		if self.autopiloting:
+		elif self.autopiloting:
 			self.gameRank = stats_ap["gameRank"]
 			self.pp = stats_ap["pp"]
 			self.rankedScore = stats_ap["rankedScore"]

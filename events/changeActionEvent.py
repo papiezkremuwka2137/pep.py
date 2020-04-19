@@ -62,7 +62,7 @@ if userToken.matchID != -1 and userToken.actionID != actions.MULTIPLAYING and us
 			userToken.enqueue(serverPackets.notification("You're playing with Relax, we've changed the leaderboard to Relax."))
 		"""
 	#autopiloten
-	if bool(packetData["actionMods"] & 8192) == True:
+	elif bool(packetData["actionMods"] & 8192) == True:
 		userToken.autopiloting = True
 		userToken.relaxing = False
 		if userToken.actionID in (0, 1, 14):
