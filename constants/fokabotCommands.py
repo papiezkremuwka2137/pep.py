@@ -586,7 +586,7 @@ def tillerinoMods(fro, chan, message):
 			elif i == "RX":
 				modsEnum += mods.RELAX
 			elif i == "AP":
-				modsEnum += mods.AUTOPLAY
+				modsEnum += mods.RELAX2
 
 		# Set mods
 		token.tillerino[1] = modsEnum
