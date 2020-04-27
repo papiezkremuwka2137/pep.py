@@ -83,6 +83,10 @@ class token:
 		self.relaxing = False
 		self.relaxAnnounce = False
 
+		#Autopilot
+		self.autopiloting = False
+		self.autoAnnounce = False
+
 		# Generate/set token
 		if token_ is not None:
 			self.token = token_
@@ -449,6 +453,7 @@ class token:
 		"""
 		stats = userUtils.getUserStats(self.userID, self.gameMode)
 		stats_relax = userUtils.getUserStatsRx(self.userID, self.gameMode)
+		stats_ap = userUtils.getUserStatsAP(self.userID, self.gameMode)
 		log.debug(str(stats))
 		
 		if stats is None:
@@ -461,6 +466,14 @@ class token:
 			self.accuracy = stats_relax["accuracy"]/100
 			self.playcount = stats_relax["playcount"]
 			self.totalScore = stats_relax["totalScore"]
+
+		elif self.autopiloting:
+			self.gameRank = stats_ap["gameRank"]
+			self.pp = stats_ap["pp"]
+			self.rankedScore = stats_ap["rankedScore"]
+			self.accuracy = stats_ap["accuracy"]/100
+			self.playcount = stats_ap["playcount"]
+			self.totalScore = stats_ap["totalScore"]
 		else:
 			self.gameRank = stats["gameRank"]
 			self.pp = stats["pp"]
