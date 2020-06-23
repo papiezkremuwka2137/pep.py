@@ -20,24 +20,28 @@ class handler(requestsManager.asyncRequestHandler):
         try:
             UserID = int(self.get_argument("id"))
         except:
-            return {
+            self.write(json.dumps({
                 "status" : 400,
                 "message" : "Invalid or no id passed."
-            }
+            }))
+            self.set_status(400)
+            return 
         
         #next we grab the token
         UserToken = glob.tokens.getTokenFromUserID(UserID)
         #ok now we make sure there are no errors if its offline
 
         if UserToken == None:
-            return {
+            self.write(json.dumps({
                 "status" : 200,
                 "message" : "i dint even lknow in netherlands?",
                 "Online" : False
-            }
+            }))
+            self.set_status(200)
+            return 
         
         #ok now we just return the json containing relevant info ig
-        return {
+        self.write(json.dumps({
             "status" : 200,
             "message" : random.choice([
                 "denmark is exist",
@@ -50,5 +54,7 @@ class handler(requestsManager.asyncRequestHandler):
             "ActionID" : UserToken.actionID,
             "BeatmapID" : UserToken.beatmapID,
             "Username" : UserToken.username
-        }
+        }))
+        self.set_status(200)
+        return 
         
