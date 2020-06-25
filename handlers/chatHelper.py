@@ -207,9 +207,9 @@ def sendMessage(fro = "", to = "", message = "", token = None, toIRC = True):
 			"пидр"
 		]
 		# we EXTERMINATE THE BAD BAD WORDS!!!!
+		FinalMessage = ""
 		for Word in MessageList:
 			#ik there is a better way of doing this but this is the only way i could come up with that ignored caps
-			FinalMessage = ""
 			for BadWord in ReallyBadWords:
 				if BadWord in Word:
 					Word = "#########" #TODO: make the amount of hashes be the lenght of the word
