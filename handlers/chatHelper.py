@@ -190,6 +190,32 @@ def sendMessage(fro = "", to = "", message = "", token = None, toIRC = True):
 		if message.startswith("!report"):
 			to = glob.BOT_NAME
 
+		#here is a filter for REALLY bad words. while we will allow things such as fuck, we dont want the community to be really toxic and unwelcoming
+		MessageList = message.split(" ") #makes it easier to analyse and filter
+		ReallyBadWords = [ #also realistik was here
+			"nazi",
+			"testword1", #so i can test without saying a really bad word!
+			"nigger", #ah the classic
+			"nigga",
+			"coon",
+			"cracker",
+			## GERMAN ##
+			"hurensohn",
+			## RUSSIAN ##
+			"хуесос",
+			"пидорас",
+			"пидр"
+		]
+		# we EXTERMINATE THE BAD BAD WORDS!!!!
+		for Word in MessageList:
+			#ik there is a better way of doing this but this is the only way i could come up with that ignored caps
+			FinalMessage = ""
+			for BadWord in ReallyBadWords:
+				if BadWord in Word:
+					Word = "#########" #TODO: make the amount of hashes be the lenght of the word
+			FinalMessage += f"{Word} "
+		message = FinalMessage[:-1] #removes the last space
+
 		# Determine internal name if needed
 		# (toclient is used clientwise for #multiplayer and #spectator channels)
 		toClient = to
