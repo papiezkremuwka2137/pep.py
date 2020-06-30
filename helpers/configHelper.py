@@ -126,7 +126,7 @@ class config:
 		self.config.set("server", "publicdelta", "0")
 
 		self.config.add_section("cheesegull")
-		self.config.set("cheesegull", "apiurl", "https://storage.ripple.moe/api")
+		self.config.set("cheesegull", "apiurl", "https://kacktaube.me/api/cheesegull")
 		self.config.set("cheesegull", "apikey", "")
 
 		self.config.add_section("debug")
