@@ -19,7 +19,8 @@ from objects import fokabot
 from objects import glob
 from helpers import chatHelper as chat
 from common.web import cheesegull
-
+from datetime import datetime
+from datetime import timedelta
 
 def bloodcatMessage(beatmapID):
 	beatmap = glob.db.fetch("SELECT song_name, beatmapset_id FROM beatmaps WHERE beatmap_id = %s LIMIT 1", [beatmapID])
@@ -317,6 +318,33 @@ def restrict(fro, chan, message):
 
 	log.rap(userID, "has put {} in restricted mode".format(target), True)
 	return "Bye bye {}. See you later, maybe.".format(target)
+
+def freeze(fro, chan, message):
+	for i in message:
+		i = i.lower()
+	target = message[0]
+
+	# Make sure the user exists
+	targetUserID = userUtils.getIDSafe(target)
+	userID = userUtils.getID(fro)
+	if not targetUserID:
+		return "{}: user not found".format(target)
+
+	# Get date & prepare freeze date
+	now = datetime.now()
+	freezedate = now + timedelta(days=2)
+	freezedateunix = (freezedate-datetime(1970,1,1)).total_seconds()
+
+	# Set freeze status & date
+	glob.db.execute("UPDATE `users`  SET `frozen` = '1' WHERE `id` = '{}'".format(targetUserID))
+	glob.db.execute("UPDATE `users`  SET `freezedate` = '{}' WHERE `id` = '{}'".format(freezedateunix, targetUserID))
+
+	targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(target), safe=True)
+	if targetToken is not None:
+		targetToken.enqueue(serverPackets.notification("Your account has been set on alert. This means that you must submit a liveplay to a Community Manager/Developer/Owner in the Misumi Discord. If you do not do this by {} UTC then your account will be auto restricted. If you need to join the Discord, it is placed on Misumi's website. You can also find the liveplay criteria in the Discord which you will be expected to follow to bypass this alert.".format(freezedate)))
+
+	log.rap(userID, "has frozen {}".format(target), True)
+	return "User has been frozen!"
 
 def unrestrict(fro, chan, message):
 	# Get parameters
