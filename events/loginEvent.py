@@ -119,12 +119,8 @@ def handle(tornadoRequest):
 		responseToken.checkRestricted()
 
 		# Check if frozen
-		IsFrozen = glob.db.fetch("SELECT frozen FROM users WHERE id = %s LIMIT 1", [userID])
-		result = IsFrozen["frozen"]
-		if result == 1:
-			frozen = True
-		else:
-			frozen = False
+		IsFrozen = glob.db.fetch(f"SELECT frozen FROM users WHERE id = {userID} LIMIT 1") #ok kids, dont ever use formats in sql queries. here i can do it as the userID comes from a trusted source (this being pep.py itself) so it wont leave me susceptable to sql injection
+		frozen = bool(IsFrozen["frozen"])
 
 		date = userUtils.getFreezeDate(responseToken.userID)
 		present = datetime.now()
