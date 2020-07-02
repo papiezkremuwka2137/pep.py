@@ -341,10 +341,31 @@ def freeze(fro, chan, message):
 
 	targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(target), safe=True)
 	if targetToken is not None:
-		targetToken.enqueue(serverPackets.notification("Your account has been set on alert. This means that you must submit a liveplay to a Community Manager/Developer/Owner in the Misumi Discord. If you do not do this by {} UTC then your account will be auto restricted. If you need to join the Discord, it is placed on Misumi's website. You can also find the liveplay criteria in the Discord which you will be expected to follow to bypass this alert.".format(freezedate)))
+		targetToken.enqueue(serverPackets.notification("msg goes here"))
 
 	log.rap(userID, "has frozen {}".format(target), True)
 	return "User has been frozen!"
+
+def unfreeze(fro, chan, message):
+	for i in message:
+		i = i.lower()
+	target = message[0]
+
+	# Make sure the user exists
+	targetUserID = userUtils.getIDSafe(target)
+	userID = userUtils.getID(fro)
+	if not targetUserID:
+		return "{}: user not found".format(target)
+
+	glob.db.execute("UPDATE `users`  SET `frozen` = '0' WHERE `id` = '{}'".format(targetUserID))
+	glob.db.execute("UPDATE `users`  SET `freezedate` = '0' WHERE `id` = '{}'".format(targetUserID))
+
+	targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(target), safe=True)
+	if targetToken is not None:
+		targetToken.enqueue(serverPackets.notification("msg goes here"))
+
+	log.rap(userID, "has unfrozen {}".format(target), True)
+	return "User has been unfrozen!"
 
 def unrestrict(fro, chan, message):
 	# Get parameters
