@@ -19,7 +19,8 @@ from objects import fokabot
 from objects import glob
 from helpers import chatHelper as chat
 from common.web import cheesegull
-
+from datetime import datetime
+from datetime import timedelta
 
 def bloodcatMessage(beatmapID):
 	beatmap = glob.db.fetch("SELECT song_name, beatmapset_id FROM beatmaps WHERE beatmap_id = %s LIMIT 1", [beatmapID])
@@ -317,6 +318,74 @@ def restrict(fro, chan, message):
 
 	log.rap(userID, "has put {} in restricted mode".format(target), True)
 	return "Bye bye {}. See you later, maybe.".format(target)
+
+def freeze(fro, chan, message):
+	for i in message:
+		i = i.lower()
+	target = message[0]
+
+	# Make sure the user exists
+	targetUserID = userUtils.getIDSafe(target)
+	userID = userUtils.getID(fro)
+	if not targetUserID:
+		return "{}: user not found".format(target)
+
+	# Get date & prepare freeze date
+	now = datetime.now()
+	freezedate = now + timedelta(days=2)
+	freezedateunix = (freezedate-datetime(1970,1,1)).total_seconds()
+
+	# Set freeze status & date
+	glob.db.execute("UPDATE `users`  SET `frozen` = '1' WHERE `id` = '{}'".format(targetUserID))
+	glob.db.execute("UPDATE `users`  SET `freezedate` = '{}' WHERE `id` = '{}'".format(freezedateunix, targetUserID))
+
+	targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(target), safe=True)
+	if targetToken is not None:
+		targetToken.enqueue(serverPackets.notification("msg goes here"))
+
+	log.rap(userID, "has frozen {}".format(target), True)
+	return "User has been frozen!"
+
+def unfreeze(fro, chan, message):
+	for i in message:
+		i = i.lower()
+	target = message[0]
+
+	# Make sure the user exists
+	targetUserID = userUtils.getIDSafe(target)
+	userID = userUtils.getID(fro)
+	if not targetUserID:
+		return "{}: user not found".format(target)
+
+	glob.db.execute("UPDATE `users`  SET `frozen` = '0' WHERE `id` = '{}'".format(targetUserID))
+	glob.db.execute("UPDATE `users`  SET `freezedate` = '0' WHERE `id` = '{}'".format(targetUserID))
+
+	targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(target), safe=True)
+	if targetToken is not None:
+		targetToken.enqueue(serverPackets.notification("msg goes here"))
+
+	log.rap(userID, "has unfrozen {}".format(target), True)
+	return "User has been unfrozen!"
+
+def changeUsername(fro, chan, message):
+	target = userUtils.safeUsername(fro)
+	new = message[0]
+	newl = message[0].lower()
+
+	targetUserID = userUtils.getIDSafe(target)
+
+	if not targetUserID:
+		return "{}: User not found".format(target)
+
+	targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(fro), safe=True)
+	userToken = glob.tokens.getTokenFromUserID(targetUserID, ignoreIRC=True, _all=False)
+	tokens = glob.tokens.getTokenFromUsername(userUtils.safeUsername(fro), safe=True, _all=True)
+	glob.db.execute("UPDATE `users`  SET `username` = '{}' WHERE `id` = '{}'".format(new, targetUserID))
+	glob.db.execute("UPDATE `users`  SET `username_safe` = '{}' WHERE `id` = '{}'".format(newl, targetUserID))
+	glob.db.execute("UPDATE `users_stats` SET `username` = '{}' WHERE `id` = '{}'".format(new, targetUserID))
+	glob.db.execute("UPDATE `rx_stats` SET `username` = '{}' WHERE `id` = '{}'".format(new, targetUserID))
+	for i in tokens:
+		i.kick("Your username has been changed to {}. Please relog!".format(new))
 
 def unrestrict(fro, chan, message):
 	# Get parameters
@@ -1545,6 +1614,16 @@ commands = [
 		"privileges": privileges.ADMIN_BAN_USERS,
 		"callback": restrict
 	}, {
+		"trigger": "!freeze",
+		"syntax": "<target>",
+		"privileges": privileges.ADMIN_MANAGE_USERS,
+		"callback": freeze
+	}, {
+		"trigger": "!unfreeze",
+		"syntax": "<target>",
+		"privileges": privileges.ADMIN_MANAGE_USERS,
+		"callback": unfreeze
+	}, {
 		"trigger": "!unrestrict",
 		"syntax": "<target>",
 		"privileges": privileges.ADMIN_BAN_USERS,
@@ -1590,6 +1669,11 @@ commands = [
 		"privileges": privileges.ADMIN_MANAGE_USERS,
 		"syntax": "<username> <message>",
 		"callback": rtx
+	}, {
+		"trigger": "!username",
+		"syntax": "<new username>",
+		"privileges": privileges.USER_DONOR,
+		"callback": changeUsername
 	}, {
 		"trigger": "!bloodcat",
 		"callback": bloodcat
