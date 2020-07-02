@@ -1573,6 +1573,16 @@ commands = [
 		"privileges": privileges.ADMIN_BAN_USERS,
 		"callback": restrict
 	}, {
+		"trigger": "!freeze",
+		"syntax": "<target>",
+		"privileges": privileges.ADMIN_MANAGE_USERS,
+		"callback": freeze
+	}, {
+		"trigger": "!unfreeze",
+		"syntax": "<target>",
+		"privileges": privileges.ADMIN_MANAGE_USERS,
+		"callback": unfreeze
+	}, {
 		"trigger": "!unrestrict",
 		"syntax": "<target>",
 		"privileges": privileges.ADMIN_BAN_USERS,
