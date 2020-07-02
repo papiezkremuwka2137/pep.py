@@ -1677,9 +1677,6 @@ commands = [
 	}, {
 		"trigger": "!bloodcat",
 		"callback": bloodcat
-	}, {
-		"trigger": "!beatconnect",
-		"callback": beatconnect
 	}
 	#
 	#	"trigger": "!acc",
