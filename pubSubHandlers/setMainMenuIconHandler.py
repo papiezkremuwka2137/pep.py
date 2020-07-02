@@ -28,7 +28,7 @@ class handler(generalPubSubHandler.generalPubSubHandler):
 			for x in targetTokens:
 				x.enqueue(
 					serverPackets.mainMenuIcon("{}|{}".format(
-						"https://i.ppy.sh/{}.png".format(icon["file_id"]),
+						"https://ussr.pl/static/logos/{}.png".format(icon["file_id"]),
 						icon["url"]
 					))
 				)

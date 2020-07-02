@@ -54,7 +54,7 @@ def make_app():
 		(r"/api/v1/ciTrigger", ciTriggerHandler.handler),
 		(r"/api/v1/verifiedStatus", apiVerifiedStatusHandler.handler),
 		(r"/api/v1/fokabotMessage", apiFokabotMessageHandler.handler),
-		(r"/api/v1/userstats", apiUserStatusHandler.handler),
+		(r"/api/yes/userstats", apiUserStatusHandler.handler),
 		(r"/api/v2/clients/.*", apiGetTheFuckOuttaHere.handler),
 		(r"/stress", heavyHandler.handler)
 	])
