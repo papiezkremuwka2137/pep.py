@@ -14,17 +14,7 @@ from helpers import locationHelper
 from helpers import kotrikhelper
 from objects import glob
 from datetime import datetime
-import mysql.connector
-
-mydb = mysql.connector.connect(
-    host='localhost',
-    user='misumi',
-    passwd='sbqCUT23d654qqm4'
-)
-mydb.autocommit = True
-
-mycursor = mydb.cursor(buffered=True)
-mycursor.execute("USE misumi")
+from objects import glob
 
 import random
 
@@ -129,9 +119,8 @@ def handle(tornadoRequest):
 		responseToken.checkRestricted()
 
 		# Check if frozen
-		resultt = mycursor.execute("SELECT frozen FROM users WHERE id = %s LIMIT 1", [userID])
-		resulta = mycursor.fetchone()
-		result = resulta[0]
+		IsFrozen = glob.db.fetch("SELECT frozen FROM users WHERE id = %s LIMIT 1", [userID])
+		result = IsFrozen["frozen"]
 		if result == 1:
 			frozen = True
 		else:
@@ -143,9 +132,9 @@ def handle(tornadoRequest):
 		date2 = datetime.utcfromtimestamp(date).strftime('%d/%m/%Y')
 		date3 = present.strftime('%d/%m/%Y')
 		passed = date2 < date3
-		if frozen == True and passed == False:
+		if frozen and passed == False:
 				responseToken.enqueue(serverPackets.notification("msg goes here"))
-		elif frozen == True and passed == True:
+		elif frozen and passed == True:
 				responseToken.enqueue(serverPackets.notification("msg goes here"))
 				userUtils.restrict(responseToken.userID)
 
