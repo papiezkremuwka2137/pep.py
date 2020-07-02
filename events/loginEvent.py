@@ -124,7 +124,7 @@ def handle(tornadoRequest):
 
 		present = datetime.now()
 		readabledate = datetime.utcfromtimestamp(IsFrozen["freezedate"]).strftime('%d-%m-%Y %H:%M:%S')
-		date2 = datetime.utcfromtimestamp(date).strftime('%d/%m/%Y')
+		date2 = datetime.utcfromtimestamp(IsFrozen["freezedate"]).strftime('%d/%m/%Y')
 		date3 = present.strftime('%d/%m/%Y')
 		passed = date2 < date3
 		if frozen and passed == False:
