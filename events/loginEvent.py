@@ -129,9 +129,9 @@ def handle(tornadoRequest):
 		date3 = present.strftime('%d/%m/%Y')
 		passed = date2 < date3
 		if frozen and passed == False:
-				responseToken.enqueue(serverPackets.notification("msg goes here"))
+				responseToken.enqueue(serverPackets.notification(f"The RealistikOsu staff team has found you suspicious and would like to request a liveplay. You have until {date3} to provide a liveplay to the staff team. This can be done via the RealistikCentral Discord server. Failure to provide a valid liveplay will result in your account being automatically restricted."))
 		elif frozen and passed == True:
-				responseToken.enqueue(serverPackets.notification("msg goes here"))
+				responseToken.enqueue(serverPackets.notification("Your window for liveplay sumbission has expired! Your account has been restricted as per our cheating policy. Please contact staff for more information on what can be done. This can be done via the RealistikCentral Discord server."))
 				userUtils.restrict(responseToken.userID)
 
 		# Send message if donor expires soon
