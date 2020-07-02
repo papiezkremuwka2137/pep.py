@@ -367,6 +367,26 @@ def unfreeze(fro, chan, message):
 	log.rap(userID, "has unfrozen {}".format(target), True)
 	return "User has been unfrozen!"
 
+def changeUsername(fro, chan, message):
+	target = userUtils.safeUsername(fro)
+	new = message[0]
+	newl = message[0].lower()
+
+	targetUserID = userUtils.getIDSafe(target)
+
+	if not targetUserID:
+		return "{}: User not found".format(target)
+
+	targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(fro), safe=True)
+	userToken = glob.tokens.getTokenFromUserID(targetUserID, ignoreIRC=True, _all=False)
+	tokens = glob.tokens.getTokenFromUsername(userUtils.safeUsername(fro), safe=True, _all=True)
+	glob.db.execute("UPDATE `users`  SET `username` = '{}' WHERE `id` = '{}'".format(new, targetUserID))
+	glob.db.execute("UPDATE `users`  SET `username_safe` = '{}' WHERE `id` = '{}'".format(newl, targetUserID))
+	glob.db.execute("UPDATE `users_stats` SET `username` = '{}' WHERE `id` = '{}'".format(new, targetUserID))
+	glob.db.execute("UPDATE `rx_stats` SET `username` = '{}' WHERE `id` = '{}'".format(new, targetUserID))
+	for i in tokens:
+		i.kick("Your username has been changed to {}. Please relog!".format(new))
+
 def unrestrict(fro, chan, message):
 	# Get parameters
 	for i in message:
@@ -1649,6 +1669,11 @@ commands = [
 		"privileges": privileges.ADMIN_MANAGE_USERS,
 		"syntax": "<username> <message>",
 		"callback": rtx
+	}, {
+		"trigger": "!username",
+		"syntax": "<new username>",
+		"privileges": privileges.USER_DONOR,
+		"callback": changeUsername
 	}, {
 		"trigger": "!bloodcat",
 		"callback": bloodcat
