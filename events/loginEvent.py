@@ -122,7 +122,6 @@ def handle(tornadoRequest):
 		IsFrozen = glob.db.fetch(f"SELECT frozen, firstloginafterfrozen, freezedate FROM users WHERE id = {userID} LIMIT 1") #ok kids, dont ever use formats in sql queries. here i can do it as the userID comes from a trusted source (this being pep.py itself) so it wont leave me susceptable to sql injection
 		frozen = bool(IsFrozen["frozen"])
 
-		date = userUtils.getFreezeDate(responseToken.userID)
 		present = datetime.now()
 		readabledate = datetime.utcfromtimestamp(IsFrozen["freezedate"]).strftime('%d-%m-%Y %H:%M:%S')
 		date2 = datetime.utcfromtimestamp(date).strftime('%d/%m/%Y')
