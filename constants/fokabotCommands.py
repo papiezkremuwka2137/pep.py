@@ -341,7 +341,7 @@ def freeze(fro, chan, message):
 
 	targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(target), safe=True)
 	if targetToken is not None:
-		targetToken.enqueue(serverPackets.notification("msg goes here"))
+		targetToken.enqueue(serverPackets.notification("You have been frozen! The RealistikOsu staff team has found you suspicious and would like to request a liveplay. Visit ussr.pl for more info."))
 
 	log.rap(userID, "has frozen {}".format(target), True)
 	return "User has been frozen!"
@@ -364,7 +364,7 @@ def unfreeze(fro, chan, message):
 
 	targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(target), safe=True)
 	if targetToken is not None:
-		targetToken.enqueue(serverPackets.notification("msg goes here"))
+		targetToken.enqueue(serverPackets.notification("Your account has been unfrozen! You have proven your legitemacy. Thank you and have fun playing on RealistikOsu!"))
 
 	log.rap(userID, "has unfrozen {}".format(target), True)
 	return "User has been unfrozen!"
