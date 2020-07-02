@@ -13,6 +13,18 @@ from helpers import countryHelper
 from helpers import locationHelper
 from helpers import kotrikhelper
 from objects import glob
+from datetime import datetime
+import mysql.connector
+
+mydb = mysql.connector.connect(
+    host='localhost',
+    user='misumi',
+    passwd='sbqCUT23d654qqm4'
+)
+mydb.autocommit = True
+
+mycursor = mydb.cursor(buffered=True)
+mycursor.execute("USE misumi")
 
 import random
 
@@ -115,6 +127,27 @@ def handle(tornadoRequest):
 
 		# Check restricted mode (and eventually send message)
 		responseToken.checkRestricted()
+
+		# Check if frozen
+		resultt = mycursor.execute("SELECT frozen FROM users WHERE id = %s LIMIT 1", [userID])
+		resulta = mycursor.fetchone()
+		result = resulta[0]
+		if result == 1:
+			frozen = True
+		else:
+			frozen = False
+
+		date = userUtils.getFreezeDate(responseToken.userID)
+		present = datetime.now()
+		readabledate = datetime.utcfromtimestamp(date).strftime('%d-%m-%Y %H:%M:%S')
+		date2 = datetime.utcfromtimestamp(date).strftime('%d/%m/%Y')
+		date3 = present.strftime('%d/%m/%Y')
+		passed = date2 < date3
+		if frozen == True and passed == False:
+				responseToken.enqueue(serverPackets.notification("msg goes here"))
+		elif frozen == True and passed == True:
+				responseToken.enqueue(serverPackets.notification("msg goes here"))
+				userUtils.restrict(responseToken.userID)
 
 		# Send message if donor expires soon
 		if responseToken.privileges & privileges.USER_DONOR > 0:
