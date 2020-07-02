@@ -359,6 +359,8 @@ def unfreeze(fro, chan, message):
 
 	glob.db.execute("UPDATE `users`  SET `frozen` = '0' WHERE `id` = '{}'".format(targetUserID))
 	glob.db.execute("UPDATE `users`  SET `freezedate` = '0' WHERE `id` = '{}'".format(targetUserID))
+	glob.db.execute("UPDATE users  SET firstloginafterfrozen = '1' WHERE id = '{}'".format(targetUserID))
+	glob.db.execute(f"INSERT IGNORE INTO user_badges (user, badge) VALUES ({targetUserID}), 1005)")
 
 	targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(target), safe=True)
 	if targetToken is not None:

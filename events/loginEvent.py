@@ -119,20 +119,27 @@ def handle(tornadoRequest):
 		responseToken.checkRestricted()
 
 		# Check if frozen
-		IsFrozen = glob.db.fetch(f"SELECT frozen FROM users WHERE id = {userID} LIMIT 1") #ok kids, dont ever use formats in sql queries. here i can do it as the userID comes from a trusted source (this being pep.py itself) so it wont leave me susceptable to sql injection
+		IsFrozen = glob.db.fetch(f"SELECT frozen, firstloginafterfrozen, freezedate FROM users WHERE id = {userID} LIMIT 1") #ok kids, dont ever use formats in sql queries. here i can do it as the userID comes from a trusted source (this being pep.py itself) so it wont leave me susceptable to sql injection
 		frozen = bool(IsFrozen["frozen"])
 
 		date = userUtils.getFreezeDate(responseToken.userID)
 		present = datetime.now()
-		readabledate = datetime.utcfromtimestamp(date).strftime('%d-%m-%Y %H:%M:%S')
+		readabledate = datetime.utcfromtimestamp(IsFrozen["freezedate"]).strftime('%d-%m-%Y %H:%M:%S')
 		date2 = datetime.utcfromtimestamp(date).strftime('%d/%m/%Y')
 		date3 = present.strftime('%d/%m/%Y')
 		passed = date2 < date3
 		if frozen and passed == False:
-				responseToken.enqueue(serverPackets.notification(f"The RealistikOsu staff team has found you suspicious and would like to request a liveplay. You have until {date3} to provide a liveplay to the staff team. This can be done via the RealistikCentral Discord server. Failure to provide a valid liveplay will result in your account being automatically restricted."))
+				responseToken.enqueue(serverPackets.notification(f"The RealistikOsu staff team has found you suspicious and would like to request a liveplay. You have until {readabledate} (UTC) to provide a liveplay to the staff team. This can be done via the RealistikCentral Discord server. Failure to provide a valid liveplay will result in your account being automatically restricted."))
 		elif frozen and passed == True:
 				responseToken.enqueue(serverPackets.notification("Your window for liveplay sumbission has expired! Your account has been restricted as per our cheating policy. Please contact staff for more information on what can be done. This can be done via the RealistikCentral Discord server."))
 				userUtils.restrict(responseToken.userID)
+
+		#we thank unfrozen people
+		first = IsFrozen["firstloginafterfrozen"]
+		
+		if not frozen and first:
+			responseToken.enqueue(serverPackets.notification("Thank you for providing a liveplay! You have proven your legitemacy and have subsequently been unfrozen. Have fun playing RealistikOsu!"))
+			glob.db.execute(f"UPDATE users SET firstloginafterfrozen = 0 WHERE id = {userID}")
 
 		# Send message if donor expires soon
 		if responseToken.privileges & privileges.USER_DONOR > 0:
