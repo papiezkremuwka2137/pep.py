@@ -1493,8 +1493,8 @@ def crashuser(fro, chan, message):
 	"""Crashes the persons game lmfao"""
 	#talnacialex found this he is good lad
 	for i in message:
-        i = i.lower()
-    target = message[0]
+		i = i.lower()
+	target = message[0]
 	targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(target), safe=True)
 	if targetToken == None:
 		#bruh they dont exist
