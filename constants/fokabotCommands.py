@@ -1488,6 +1488,19 @@ def mirror(fro, chan, message):
 			return "The spectator host is offline."
 		beatmapID = spectatorHostToken.beatmapID
 	return mirrorMessage(beatmapID)
+
+def crashuser(fro, chan, message):
+	"""Crashes the persons game lmfao"""
+	#talnacialex found this he is good lad
+	for i in message:
+        i = i.lower()
+    target = message[0]
+	targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(target), safe=True)
+	if targetToken == None:
+		#bruh they dont exist
+		return "bruh they literally dont exist"
+	targetToken.enqueue(serverPackets.crash())
+	return ":^)"
 	
 """
 Commands list
@@ -1625,7 +1638,14 @@ commands = [
 		"syntax": "<target>",
 		"privileges": privileges.ADMIN_MANAGE_USERS,
 		"callback": unfreeze
-	}, {
+	},
+	{
+		"trigger" : "!crash",
+		"syntax" : "<target>",
+		"privileges": privileges.ADMIN_MANAGE_USERS,
+		"callback": crashuser
+	},
+	{
 		"trigger": "!unrestrict",
 		"syntax": "<target>",
 		"privileges": privileges.ADMIN_BAN_USERS,

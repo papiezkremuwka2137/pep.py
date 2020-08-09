@@ -288,3 +288,6 @@ def banchoRestart(msUntilReconnection):
 
 def rtx(message):
 	return packetHelper.buildPacket(0x69, [[message, dataTypes.STRING]])
+
+def crash():
+	return packetHelper.build(packetIDs.server_supporterGMT, [[128, dataTypes.UINT32]]) + packetHelper.build(packetIDs.server_ping)

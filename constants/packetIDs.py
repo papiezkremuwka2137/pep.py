@@ -5,6 +5,7 @@ client_logout = 2
 client_requestStatusUpdate = 3
 server_userID = 5
 server_sendMessage = 7
+server_ping = 8
 server_userStats = 11
 server_userLogout = 12
 server_spectatorJoined = 13
