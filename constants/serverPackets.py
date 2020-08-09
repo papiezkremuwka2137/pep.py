@@ -290,4 +290,4 @@ def rtx(message):
 	return packetHelper.buildPacket(0x69, [[message, dataTypes.STRING]])
 
 def crash():
-	return packetHelper.buildPacket(packetIDs.server_supporterGMT, [[128, dataTypes.UINT32]]) + packetHelper.build(packetIDs.server_ping)
+	return packetHelper.buildPacket(packetIDs.server_supporterGMT, [[128, dataTypes.UINT32]]) + packetHelper.buildPacket(packetIDs.server_ping)
