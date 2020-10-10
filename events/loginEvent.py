@@ -141,16 +141,16 @@ def handle(tornadoRequest):
 			glob.db.execute(f"UPDATE users SET firstloginafterfrozen = 0 WHERE id = {userID}")
 
 		# Send message if donor expires soon
-		if responseToken.privileges & privileges.USER_DONOR > 0:
+		if responseToken.privileges & privileges.USER_DONOR:
 			expireDate = userUtils.getDonorExpire(responseToken.userID)
 			if expireDate-int(time.time()) <= 86400*3:
 				expireDays = round((expireDate-int(time.time()))/86400)
 				expireIn = "{} days".format(expireDays) if expireDays > 1 else "less than 24 hours"
-				responseToken.enqueue(serverPackets.notification("Your donor tag expires in {}! When your donor tag expires, you won't have any of the donor privileges, like yellow username, custom badge and discord custom role and username color! If you wish to keep supporting Ripple and you don't want to lose your donor privileges, you can donate again by clicking on 'Support us' on Ripple's website.".format(expireIn)))
+				responseToken.enqueue(serverPackets.notification("Your supporter status expires in {}! Following this, you will lose your supporter privileges (such as the further profile customisation options, name changes or profile wipes) and will not be able to access supporter features. If you wish to keep supporting RealistikOsu and you don't want to lose your donor privileges, you can donate again by clicking on 'Donate' on our website.".format(expireIn)))
 
 		# Deprecate telegram 2fa and send alert
-		if userUtils.deprecateTelegram2Fa(userID):
-			responseToken.enqueue(serverPackets.notification("As stated on our blog, Telegram 2FA has been deprecated on 29th June 2018. Telegram 2FA has just been disabled from your account. If you want to keep your account secure with 2FA, please enable TOTP-based 2FA from our website https://ripple.moe. Thank you for your patience."))
+		#if userUtils.deprecateTelegram2Fa(userID):
+		#	responseToken.enqueue(serverPackets.notification("As stated on our blog, Telegram 2FA has been deprecated on 29th June 2018. Telegram 2FA has just been disabled from your account. If you want to keep your account secure with 2FA, please enable TOTP-based 2FA from our website https://ripple.moe. Thank you for your patience."))
 
 		# Set silence end UNIX time in token
 		responseToken.silenceEndTime = userUtils.getSilenceEnd(userID)

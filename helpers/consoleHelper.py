@@ -9,27 +9,16 @@ def printServerStartHeader(asciiArt=True):
 	:return:
 	"""
 	if asciiArt:
-		print("{}           _                 __".format(bcolors.GREEN))
-		print("          (_)              /  /")
-		print("   ______ __ ____   ____  /  /____")
-		print("  /  ___/  /  _  \\/  _  \\/  /  _  \\")
-		print(" /  /  /  /  /_) /  /_) /  /  ____/")
-		print("/__/  /__/  .___/  .___/__/ \\_____/")
-		print("        /  /   /  /")
-		print("       /__/   /__/\r\n")
-		print("                          .. o  .")
-		print("                         o.o o . o")
-		print("                        oo...")
-		print("                    __[]__")
-		print("             ______/o_o_o_|__  everybody is gone :(")
-		print("             \\\"\"\"\"\"\"\"\"\"\"\"\"\"\"/")
-		print("              \\ . ..  .. . /")
-		print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^{}".format(bcolors.ENDC))
+		printColored(r""" ______   ______   ______       ______   __  __    
+/_____/\ /_____/\ /_____/\     /_____/\ /_/\/_/\   
+\:::_ \ \\::::_\/_\:::_ \ \    \:::_ \ \\ \ \ \ \  
+ \:(_) \ \\:\/___/\\:(_) \ \ ___\:(_) \ \\:\_\ \ \ 
+  \: ___\/ \::___\/_\: ___\//__/\\: ___\/ \::::_\/ 
+   \ \ \    \:\____/\\ \ \  \::\ \\ \ \     \::\ \ 
+    \_\/     \_____\/ \_\/   \:_\/ \_\/      \__\/ """,bcolors.GREEN)
 
-	printColored("> Welcome to pep.py osu!bancho server v{}".format(glob.VERSION), bcolors.GREEN)
-	printColored("> Made by the Ripple team, custom fork by osu!thailand", bcolors.GREEN)
-	printColored("> {}https://zxq.co/ripple/pep.py".format(bcolors.UNDERLINE), bcolors.GREEN)
-	printColored("> Press CTRL+C to exit\n", bcolors.GREEN)
+	printColored(f"# PEP.PY - The RealistikOsu! Bancho emulator.", bcolors.BLUE)
+	printColored(f"# This is a fork of the now deprecated pep.py by the Ripple Team.", bcolors.BLUE)
 
 def printNoNl(string):
 	"""
