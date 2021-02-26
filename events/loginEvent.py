@@ -7,16 +7,19 @@ from common.log import logUtils as log
 from common.ripple import userUtils
 from constants import exceptions
 from constants import serverPackets
-from helpers import aobaHelper
 from helpers import chatHelper as chat
 from helpers import countryHelper
 from helpers import locationHelper
-from helpers import kotrikhelper
 from objects import glob
 from datetime import datetime
 from objects import glob
-
 import random
+
+# With people naming their helpers 
+# like this, it almost feels like an 
+# adveritsing show.
+from helpers import aobaHelper
+from helpers import kotrikhelper
 
 def handle(tornadoRequest):
 	# Data to return

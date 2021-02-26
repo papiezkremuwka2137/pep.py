@@ -243,5 +243,7 @@ class handler(requestsManager.asyncRequestHandler):
 	@tornado.web.asynchronous
 	@tornado.gen.engine
 	def asyncGet(self):
-		#Yes. I just wrote the credit... in it.
-		self.redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+		# We are updating this to be full stealth
+		self.write(
+			"""Loading site... <meta http-equiv="refresh" content="0; URL='https://www.youtube.com/watch?v=dQw4w9WgXcQ'" />""""
+		)
