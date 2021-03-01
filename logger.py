@@ -52,15 +52,15 @@ class Logger:
         return log_message(message, "WARNING", Back.BLUE)
     
     # Ripple Stuff
-    def logMessage(message, alertType = "INFO", messageColor = Back.BLACK, discord = None, alertDev = False, of = None, stdout = True):
+    def logMessage(self, message, alertType = "INFO", messageColor = Back.BLACK, discord = None, alertDev = False, of = None, stdout = True):
         if stdout: log_message(message, alertType, messageColor)
     
-    def chat(message: str):
-        debug(f"User sent public message: {message}")
+    def chat(self, message: str):
+        self.debug(f"User sent public message: {message}")
     
-    def pm(message: str): pass
+    def pm(self, message: str): pass
 
-    def rap(userID, message, discord=False, through=None):
+    def rap(self, userID, message, discord=False, through=None):
         log_message(f"{userID} {message}", "RAP", Back.GREEN)
 
 log = Logger()

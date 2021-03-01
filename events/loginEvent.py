@@ -18,6 +18,7 @@ import random
 try:
 	from realistik.localise import get_full
 except ImportError:
+	log.warning("Using RippleAPI geolocation.")
 	from helpers.locationHelper import get_full
 
 def handle(tornadoRequest):
