@@ -1,4 +1,4 @@
-from common.log import logUtils as log
+from logger import log
 from constants import clientPackets
 from constants import serverPackets
 

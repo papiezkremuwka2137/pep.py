@@ -3,7 +3,7 @@ import time
 import uuid
 
 from common.constants import gameModes, actions
-from common.log import logUtils as log
+from logger import log
 from common.ripple import userUtils
 from constants import exceptions
 from constants import serverPackets

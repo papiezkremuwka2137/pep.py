@@ -1,4 +1,4 @@
-from common.log import logUtils as log
+from logger import log
 from constants import exceptions
 from constants import serverPackets
 from objects import glob

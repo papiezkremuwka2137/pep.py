@@ -1,7 +1,7 @@
 import time
 import json
 
-from common.log import logUtils as log
+from logger import log
 from constants import serverPackets
 from helpers import chatHelper as chat
 from objects import glob

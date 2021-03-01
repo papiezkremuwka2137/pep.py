@@ -4,7 +4,7 @@ import threading
 
 import time
 
-from common.log import logUtils as log
+from logger import log
 from constants import dataTypes
 from constants import matchModModes
 from constants import matchScoringTypes

@@ -1,6 +1,6 @@
 from objects import glob
 from constants import serverPackets
-from common.log import logUtils as log
+from logger import log
 
 def handle(userToken, packetData):
 	# get token data

@@ -1,7 +1,7 @@
 import random
 
 from common import generalUtils
-from common.log import logUtils as log
+from logger import log
 from constants import clientPackets
 from constants import matchModModes
 from constants import matchTeamTypes

@@ -8,7 +8,7 @@ import time
 import psutil
 
 from common.constants import bcolors
-from common.log import logUtils as log
+from logger import log
 from constants import serverPackets
 from helpers import consoleHelper
 from objects import glob

@@ -1,7 +1,7 @@
 import time
 import datetime
 
-from common.log import logUtils as log
+from logger import log
 from constants import rankedStatuses
 from helpers import osuapiHelper
 import objects.glob

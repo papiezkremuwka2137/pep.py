@@ -7,7 +7,7 @@ import tornado.gen
 import tornado.web
 from raven.contrib.tornado import SentryMixin
 
-from common.log import logUtils as log
+from logger import log
 from common.web import requestsManager
 from constants import exceptions
 from constants import packetIDs

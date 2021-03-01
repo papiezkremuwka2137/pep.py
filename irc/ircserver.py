@@ -16,7 +16,7 @@ import traceback
 
 import raven
 
-from common.log import logUtils as log
+from logger import log
 from common.ripple import userUtils
 from helpers import chatHelper as chat
 from objects import glob

@@ -4,7 +4,7 @@ import tornado.web
 import tornado.gen
 
 from common.sentry import sentry
-from common.log import logUtils as log
+from logger import log
 from common.web import requestsManager
 from constants import exceptions
 from helpers import systemHelper

@@ -1,6 +1,6 @@
 from common.redis import generalPubSubHandler
 from common.ripple import userUtils
-from common.log import logUtils as log
+from logger import log
 from common.constants import actions
 from objects import glob
 

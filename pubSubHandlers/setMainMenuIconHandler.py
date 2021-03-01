@@ -1,4 +1,4 @@
-from common.log import logUtils as log
+from logger import log
 from common.redis import generalPubSubHandler
 from objects import glob
 from constants import serverPackets

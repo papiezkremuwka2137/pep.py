@@ -3,7 +3,7 @@ import time
 import traceback
 
 from common.constants import privileges
-from common.log import logUtils as log
+from logger import log
 from common.ripple import userUtils
 from constants import exceptions
 from constants import serverPackets

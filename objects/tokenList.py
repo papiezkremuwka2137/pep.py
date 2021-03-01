@@ -4,7 +4,7 @@ import time
 import redis
 
 from common.ripple import userUtils
-from common.log import logUtils as log
+from logger import log
 from common.sentry import sentry
 from constants import serverPackets
 from constants.exceptions import periodicLoopException

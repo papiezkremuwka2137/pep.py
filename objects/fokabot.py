@@ -7,7 +7,8 @@ from common.ripple import userUtils
 from constants import fokabotCommands
 from constants import serverPackets
 from objects import glob
-from common.log import logUtils as log
+from logger import log
+from importlib import reload
 
 # Tillerino np regex, compiled only once to increase performance
 npRegex = re.compile("^https?:\\/\\/osu\\.ppy\\.sh\\/b\\/(\\d*)")
@@ -31,6 +32,10 @@ def connect():
 	token.country = 2 #this is retared, fuck it im keeping it as europe, couldnt find the uk as its ordered stupidly
 	glob.streams.broadcast("main", serverPackets.userPanel(999))
 	glob.streams.broadcast("main", serverPackets.userStats(999))
+
+def reload_commands():
+	"""Reloads the Fokabot commands module."""
+	reload(fokabotCommands)
 
 def disconnect():
 	"""

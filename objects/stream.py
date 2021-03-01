@@ -1,4 +1,4 @@
-from common.log import logUtils as log
+from logger import log
 from objects import glob
 
 class stream:

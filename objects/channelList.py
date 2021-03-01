@@ -1,4 +1,4 @@
-from common.log import logUtils as log
+from logger import log
 from objects import channel
 from objects import glob
 from helpers import chatHelper as chat

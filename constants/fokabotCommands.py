@@ -8,7 +8,7 @@ import time
 
 from common import generalUtils
 from common.constants import mods
-from common.log import logUtils as log
+from logger import log
 from common.ripple import userUtils
 from constants import exceptions, slotStatuses, matchModModes, matchTeams, matchTeamTypes, matchScoringTypes
 from common.constants import gameModes
@@ -187,6 +187,16 @@ def fokabotReconnect(fro, chan, message):
 	# Bot is not connected, connect it
 	fokabot.connect()
 	return False
+
+def reload_commands(fro, chan, mes) -> str:
+	"""Reloads all of the RealistikBot commands."""
+
+	try:
+		fokabot.reload_commands()
+		return "RealistikBot has been reloaded successfully!"
+	except Exception as e:
+
+		return f"There has been an exception while reloading the bot: {e}"
 
 def silence(fro, chan, message):
 	"""Silences a specific user for a specific interval."""
@@ -1707,6 +1717,11 @@ commands = [
 		"trigger": "!acc",
 		"callback": tillerinoAcc,
 		"syntax": "<accuarcy>"
+	},
+	{
+		"trigger": "!botreload",
+		"callback": reload_commands,
+		"privileges": privileges.ADMIN_MANAGE_SERVERS
 	}
 ]
 
@@ -1725,12 +1740,15 @@ def help_cmd(fro, chan, message):
 		docstr = command.get("trigger").__doc__ # Miss you walrus
 		if docstr is None: docstr = "No description available."
 
+		name = command["trigger"]
+		if command.get("syntax"): name += f" {command['syntax']}"
+
 		help_cmd += f" - {command['trigger']} - {docstr}\n"
 
 # Manually add it ig.
 commands.append(
 	{
-		"triggers": "!help",
+		"trigger": "!help",
 		"callback": help_cmd
 	}
 )

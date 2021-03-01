@@ -1,7 +1,7 @@
 import json
 import urllib.request
 
-from common.log import logUtils as log
+from logger import log
 from objects import glob
 	
 def get_full(ip: str) -> tuple:

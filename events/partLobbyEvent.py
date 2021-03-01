@@ -1,4 +1,4 @@
-from common.log import logUtils as log
+from logger import log
 from helpers import chatHelper as chat
 
 def handle(userToken, _):

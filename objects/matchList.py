@@ -6,7 +6,7 @@ from constants.exceptions import periodicLoopException
 from objects import match
 from objects import glob
 from constants import serverPackets
-from common.log import logUtils as log
+from logger import log
 
 class matchList:
 	def __init__(self):

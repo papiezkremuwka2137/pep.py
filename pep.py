@@ -16,7 +16,7 @@ from common import generalUtils, agpl
 from common.constants import bcolors
 from common.db import dbConnector
 from common.ddog import datadogClient
-from common.log import logUtils as log
+from logger import log
 from common.redis import pubSub
 from common.web import schiavo
 from handlers import apiFokabotMessageHandler
@@ -73,73 +73,65 @@ if __name__ == "__main__":
 		consoleHelper.printServerStartHeader(True)
 
 		# Read config.ini
-		consoleHelper.printNoNl("> Loading config file... ")
+		log.info("Loading config file... ")
 		glob.conf = configHelper.config("config.ini")
 
 		if glob.conf.default:
 			# We have generated a default config.ini, quit server
-			consoleHelper.printWarning()
-			consoleHelper.printColored("[!] config.ini not found. A default one has been generated.", bcolors.YELLOW)
-			consoleHelper.printColored("[!] Please edit your config.ini and run the server again.", bcolors.YELLOW)
+			log.warning("config.ini not found. A default one has been generated.")
+			log.warning("Please edit your config.ini and run the server again.")
 			sys.exit()
 
 		# If we haven't generated a default config.ini, check if it's valid
 		if not glob.conf.checkConfig():
-			consoleHelper.printError()
-			consoleHelper.printColored("[!] Invalid config.ini. Please configure it properly", bcolors.RED)
-			consoleHelper.printColored("[!] Delete your config.ini to generate a default one", bcolors.RED)
+			log.error("Invalid config.ini. Please configure it properly")
+			log.error("Delete your config.ini to generate a default one")
 			sys.exit()
 		else:
-			consoleHelper.printDone()
+			log.info("Complete!")
 
 		# Read additional config file
-		consoleHelper.printNoNl("> Loading additional config file... ")
+		consoleHelper.printNoNl("Loading additional config file... ")
 		try:
 			if not os.path.isfile(glob.conf.config["custom"]["config"]):
-				consoleHelper.printWarning()
-				consoleHelper.printColored("[!] Missing config file at {}; A default one has been generated at this location.".format(glob.conf.config["custom"]["config"]), bcolors.YELLOW)
+				log.warning("Missing config file at {}; A default one has been generated at this location.".format(glob.conf.config["custom"]["config"]))
 				shutil.copy("common/default_config.json", glob.conf.config["custom"]["config"])
 
 			with open(glob.conf.config["custom"]["config"], "r") as f:
 				glob.conf.extra = json.load(f)
 
-			consoleHelper.printDone()
+			log.info("Complete!")
 		except:
-			consoleHelper.printWarning()
-			consoleHelper.printColored("[!] Unable to load custom config at {}".format(glob.conf.config["custom"]["config"]), bcolors.RED)
+			log.error("Unable to load custom config at {}".format(glob.conf.config["custom"]["config"]))
 			sys.exit()
 
 		# Create data folder if needed
-		consoleHelper.printNoNl("> Checking folders... ")
+		log.info("Checking folders... ")
 		paths = [".data"]
 		for i in paths:
 			if not os.path.exists(i):
 				os.makedirs(i, 0o770)
-		consoleHelper.printDone()
+		log.info("Complete!")
 
 		# Connect to db
 		try:
-			consoleHelper.printNoNl("> Connecting to MySQL database... ")
+			log.info("Connecting to MySQL database... ")
 			glob.db = dbConnector.db(glob.conf.config["db"]["host"], glob.conf.config["db"]["username"], glob.conf.config["db"]["password"], glob.conf.config["db"]["database"], int(glob.conf.config["db"]["workers"]))
-			consoleHelper.printNoNl(" ")
-			consoleHelper.printDone()
+			log.info("Complete!")
 		except:
 			# Exception while connecting to db
-			consoleHelper.printError()
-			consoleHelper.printColored("[!] Error while connection to database. Please check your config.ini and run the server again", bcolors.RED)
+			log.error("Error while connection to database. Please check your config.ini and run the server again")
 			raise
 
 		# Connect to redis
 		try:
-			consoleHelper.printNoNl("> Connecting to redis... ")
+			log.info("Connecting to redis... ")
 			glob.redis = redis.Redis(glob.conf.config["redis"]["host"], glob.conf.config["redis"]["port"], glob.conf.config["redis"]["database"], glob.conf.config["redis"]["password"])
 			glob.redis.ping()
-			consoleHelper.printNoNl(" ")
-			consoleHelper.printDone()
+			log.info("Complete!")
 		except:
 			# Exception while connecting to db
-			consoleHelper.printError()
-			consoleHelper.printColored("[!] Error while connection to redis. Please check your config.ini and run the server again", bcolors.RED)
+			log.error("Error while connection to redis. Please check your config.ini and run the server again")
 			raise
 
 		# Empty redis cache
@@ -156,91 +148,91 @@ if __name__ == "__main__":
 
 		# Load bancho_settings
 		try:
-			consoleHelper.printNoNl("> Loading bancho settings from DB... ")
+			log.info("Loading bancho settings from DB... ")
 			glob.banchoConf = banchoConfig.banchoConfig()
-			consoleHelper.printDone()
+			log.info("Complete!")
 		except:
 			consoleHelper.printError()
-			consoleHelper.printColored("[!] Error while loading bancho_settings. Please make sure the table in DB has all the required rows", bcolors.RED)
+			consoleHelper.printColored("Error while loading bancho_settings. Please make sure the table in DB has all the required rows", bcolors.RED)
 			raise
 
 		# Delete old bancho sessions
-		consoleHelper.printNoNl("> Deleting cached bancho sessions from DB... ")
+		consoleHelper.printNoNl("Deleting cached bancho sessions from DB... ")
 		glob.tokens.deleteBanchoSessions()
-		consoleHelper.printDone()
+		log.info("Complete!")
 
 		# Create threads pool
 		try:
-			consoleHelper.printNoNl("> Creating threads pool... ")
+			log.info("Creating threads pool... ")
 			glob.pool = ThreadPool(int(glob.conf.config["server"]["threads"]))
-			consoleHelper.printDone()
+			log.info("Complete!")
 		except ValueError:
 			consoleHelper.printError()
-			consoleHelper.printColored("[!] Error while creating threads pool. Please check your config.ini and run the server again", bcolors.RED)
+			consoleHelper.printColored("Error while creating threads pool. Please check your config.ini and run the server again", bcolors.RED)
 
 		try:
-			consoleHelper.printNoNl("> Loading chat filters... ")
+			log.info("Loading chat filters... ")
 			glob.chatFilters = chatFilters.chatFilters()
-			consoleHelper.printDone()
+			log.info("Complete!")
 		except:
 			consoleHelper.printError()
-			consoleHelper.printColored("[!] Error while loading chat filters. Make sure there is a filters.txt file present", bcolors.RED)
+			consoleHelper.printColored("Error while loading chat filters. Make sure there is a filters.txt file present", bcolors.RED)
 			raise
 
 		# Start fokabot
-		consoleHelper.printNoNl("> Connecting FokaBot... ")
+		log.info("Connecting FokaBot... ")
 		fokabot.connect()
-		consoleHelper.printDone()
+		log.info("Complete!")
 
 		# Initialize chat channels
-		print("> Initializing chat channels... ")
+		log.info("Initializing chat channels... ")
 		glob.channels.loadChannels()
-		consoleHelper.printDone()
+		log.info("Complete!")
 
 		# Initialize stremas
-		consoleHelper.printNoNl("> Creating packets streams... ")
+		log.info("Creating packets streams... ")
 		glob.streams.add("main")
 		glob.streams.add("lobby")
-		consoleHelper.printDone()
+		log.info("Complete!")
 
 		# Initialize user timeout check loop
-		consoleHelper.printNoNl("> Initializing user timeout check loop... ")
+		log.info("Initializing user timeout check loop... ")
 		glob.tokens.usersTimeoutCheckLoop()
-		consoleHelper.printDone()
+		log.info("Complete!")
 
 		# Initialize spam protection reset loop
-		consoleHelper.printNoNl("> Initializing spam protection reset loop... ")
+		log.info("Initializing spam protection reset loop... ")
 		glob.tokens.spamProtectionResetLoop()
-		consoleHelper.printDone()
+		log.info("Complete!")
 
 		# Initialize multiplayer cleanup loop
-		consoleHelper.printNoNl("> Initializing multiplayer cleanup loop... ")
+		log.info("Initializing multiplayer cleanup loop... ")
 		glob.matches.cleanupLoop()
-		consoleHelper.printDone()
+		log.info("Complete!")
 
 		# Localize warning
 		glob.localize = generalUtils.stringToBool(glob.conf.config["localize"]["enable"])
 		if not glob.localize:
-			consoleHelper.printColored("[!] Warning! Users localization is disabled!", bcolors.YELLOW)
+			log.warning("Users localization is disabled!")
 
 		# Discord
 		if generalUtils.stringToBool(glob.conf.config["discord"]["enable"]):
 			glob.schiavo = schiavo.schiavo(glob.conf.config["discord"]["boturl"], "**pep.py**")
 		else:
-			consoleHelper.printColored("[!] Warning! Discord logging is disabled!", bcolors.YELLOW)
+			log.warning("Discord logging is disabled!")
 
 		# Gzip
 		glob.gzip = generalUtils.stringToBool(glob.conf.config["server"]["gzip"])
 		glob.gziplevel = int(glob.conf.config["server"]["gziplevel"])
 		if not glob.gzip:
-			consoleHelper.printColored("[!] Warning! Gzip compression is disabled!", bcolors.YELLOW)
+			log.warning("Gzip compression is disabled!")
 
 		# Debug mode
 		glob.debug = generalUtils.stringToBool(glob.conf.config["debug"]["enable"])
 		glob.outputPackets = generalUtils.stringToBool(glob.conf.config["debug"]["packets"])
 		glob.outputRequestTime = generalUtils.stringToBool(glob.conf.config["debug"]["time"])
 		if glob.debug:
-			consoleHelper.printColored("[!] Warning! Server running in debug mode!", bcolors.YELLOW)
+			log.warning("Server running in debug mode!")
 
 		# Make app
 		glob.application = make_app()
@@ -251,9 +243,9 @@ if __name__ == "__main__":
 			if glob.sentry:
 				glob.application.sentry_client = AsyncSentryClient(glob.conf.config["sentry"]["banchodsn"], release=glob.VERSION)
 			else:
-				consoleHelper.printColored("[!] Warning! Sentry logging is disabled!", bcolors.YELLOW)
+				log.warning("Sentry logging is disabled!")
 		except:
-			consoleHelper.printColored("[!] Error while starting sentry client! Please check your config.ini and run the server again", bcolors.RED)
+			log.error("Error while starting sentry client! Please check your config.ini and run the server again")
 
 		# Set up datadog
 		try:
@@ -277,9 +269,9 @@ if __name__ == "__main__":
 						#datadogClient.periodicCheck("ram_db", lambda: generalUtils.getTotalSize(glob.db)),
 					])
 			else:
-				consoleHelper.printColored("[!] Warning! Datadog stats tracking is disabled!", bcolors.YELLOW)
+				log.warning("Datadog stats tracking is disabled!")
 		except:
-			consoleHelper.printColored("[!] Error while starting Datadog client! Please check your config.ini and run the server again", bcolors.RED)
+			log.warning("Error while starting Datadog client! Please check your config.ini and run the server again")
 
 		# IRC start message and console output
 		glob.irc = generalUtils.stringToBool(glob.conf.config["irc"]["enable"])
@@ -289,23 +281,23 @@ if __name__ == "__main__":
 			try:
 				ircPort = int(glob.conf.config["irc"]["port"])
 			except ValueError:
-				consoleHelper.printColored("[!] Invalid IRC port! Please check your config.ini and run the server again", bcolors.RED)
+				log.error("Invalid IRC port! Please check your config.ini and run the server again")
 			log.logMessage("IRC server started!", discord="bunker", of="info.txt", stdout=False)
-			consoleHelper.printColored("> IRC server listening on 127.0.0.1:{}...".format(ircPort), bcolors.GREEN)
+			log.info("IRC server listening on 127.0.0.1:{}...".format(ircPort))
 			threading.Thread(target=lambda: ircserver.main(port=ircPort)).start()
 		else:
-			consoleHelper.printColored("[!] Warning! IRC server is disabled!", bcolors.YELLOW)
+			log.warning("IRC server is disabled!", bcolors.YELLOW)
 
 		# Server port
 		serverPort = 0
 		try:
 			serverPort = int(glob.conf.config["server"]["port"])
 		except ValueError:
-			consoleHelper.printColored("[!] Invalid server port! Please check your config.ini and run the server again", bcolors.RED)
+			log.error("Invalid server port! Please check your config.ini and run the server again")
 
 		# Server start message and console output
 		log.logMessage("Server started!", discord="bunker", of="info.txt", stdout=False)
-		consoleHelper.printColored("> Tornado listening for HTTP(s) clients on 127.0.0.1:{}...".format(serverPort), bcolors.GREEN)
+		log.info("Tornado listening for HTTP(s) clients on 127.0.0.1:{}...".format(serverPort))
 
 		# Connect to pubsub channels
 		pubSub.listener(glob.redis, {
