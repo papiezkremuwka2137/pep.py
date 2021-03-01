@@ -59,50 +59,7 @@ from objects import glob
 from common.sentry import sentry
 
 # Placing this here so we do not have to register this every conn.
-eventHandler = {
-	packetIDs.client_changeAction: handleEvent(changeActionEvent),
-	packetIDs.client_logout: handleEvent(logoutEvent),
-	packetIDs.client_friendAdd: handleEvent(friendAddEvent),
-	packetIDs.client_friendRemove: handleEvent(friendRemoveEvent),
-	packetIDs.client_userStatsRequest: handleEvent(userStatsRequestEvent),
-	packetIDs.client_requestStatusUpdate: handleEvent(requestStatusUpdateEvent),
-	packetIDs.client_userPanelRequest: handleEvent(userPanelRequestEvent),
-	packetIDs.client_channelJoin: handleEvent(channelJoinEvent),
-	packetIDs.client_channelPart: handleEvent(channelPartEvent),
-	packetIDs.client_sendPublicMessage: handleEvent(sendPublicMessageEvent),
-	packetIDs.client_sendPrivateMessage: handleEvent(sendPrivateMessageEvent),
-	packetIDs.client_setAwayMessage: handleEvent(setAwayMessageEvent),
-	packetIDs.client_startSpectating: handleEvent(startSpectatingEvent),
-	packetIDs.client_stopSpectating: handleEvent(stopSpectatingEvent),
-	packetIDs.client_cantSpectate: handleEvent(cantSpectateEvent),
-	packetIDs.client_spectateFrames: handleEvent(spectateFramesEvent),
-	packetIDs.client_joinLobby: handleEvent(joinLobbyEvent),
-	packetIDs.client_partLobby: handleEvent(partLobbyEvent),
-	packetIDs.client_createMatch: handleEvent(createMatchEvent),
-	packetIDs.client_joinMatch: handleEvent(joinMatchEvent),
-	packetIDs.client_partMatch: handleEvent(partMatchEvent),
-	packetIDs.client_matchChangeSlot: handleEvent(changeSlotEvent),
-	packetIDs.client_matchChangeSettings: handleEvent(changeMatchSettingsEvent),
-	packetIDs.client_matchChangePassword: handleEvent(changeMatchPasswordEvent),
-	packetIDs.client_matchChangeMods: handleEvent(changeMatchModsEvent),
-	packetIDs.client_matchReady: handleEvent(matchReadyEvent),
-	packetIDs.client_matchNotReady: handleEvent(matchReadyEvent),
-	packetIDs.client_matchLock: handleEvent(matchLockEvent),
-	packetIDs.client_matchStart: handleEvent(matchStartEvent),
-	packetIDs.client_matchLoadComplete: handleEvent(matchPlayerLoadEvent),
-	packetIDs.client_matchSkipRequest: handleEvent(matchSkipEvent),
-	packetIDs.client_matchScoreUpdate: handleEvent(matchFramesEvent),
-	packetIDs.client_matchComplete: handleEvent(matchCompleteEvent),
-	packetIDs.client_matchNoBeatmap: handleEvent(matchNoBeatmapEvent),
-	packetIDs.client_matchHasBeatmap: handleEvent(matchHasBeatmapEvent),
-	packetIDs.client_matchTransferHost: handleEvent(matchTransferHostEvent),
-	packetIDs.client_matchFailed: handleEvent(matchFailedEvent),
-	packetIDs.client_matchChangeTeam: handleEvent(matchChangeTeamEvent),
-	packetIDs.client_invite: handleEvent(matchInviteEvent),
-	packetIDs.client_tournamentMatchInfoRequest: handleEvent(tournamentMatchInfoRequestEvent),
-	packetIDs.client_tournamentJoinMatchChannel: handleEvent(tournamentJoinMatchChannelEvent),
-	packetIDs.client_tournamentLeaveMatchChannel: handleEvent(tournamentLeaveMatchChannelEvent),
-}
+
 # Packets processed if in restricted mode.
 # All other packets will be ignored if the user is in restricted mode
 packetsRestricted = [
@@ -167,6 +124,51 @@ class handler(requestsManager.asyncRequestHandler):
 						def wrapper():
 							ev.handle(userToken, packetData)
 						return wrapper
+					
+					eventHandler = {
+						packetIDs.client_changeAction: handleEvent(changeActionEvent),
+						packetIDs.client_logout: handleEvent(logoutEvent),
+						packetIDs.client_friendAdd: handleEvent(friendAddEvent),
+						packetIDs.client_friendRemove: handleEvent(friendRemoveEvent),
+						packetIDs.client_userStatsRequest: handleEvent(userStatsRequestEvent),
+						packetIDs.client_requestStatusUpdate: handleEvent(requestStatusUpdateEvent),
+						packetIDs.client_userPanelRequest: handleEvent(userPanelRequestEvent),
+						packetIDs.client_channelJoin: handleEvent(channelJoinEvent),
+						packetIDs.client_channelPart: handleEvent(channelPartEvent),
+						packetIDs.client_sendPublicMessage: handleEvent(sendPublicMessageEvent),
+						packetIDs.client_sendPrivateMessage: handleEvent(sendPrivateMessageEvent),
+						packetIDs.client_setAwayMessage: handleEvent(setAwayMessageEvent),
+						packetIDs.client_startSpectating: handleEvent(startSpectatingEvent),
+						packetIDs.client_stopSpectating: handleEvent(stopSpectatingEvent),
+						packetIDs.client_cantSpectate: handleEvent(cantSpectateEvent),
+						packetIDs.client_spectateFrames: handleEvent(spectateFramesEvent),
+						packetIDs.client_joinLobby: handleEvent(joinLobbyEvent),
+						packetIDs.client_partLobby: handleEvent(partLobbyEvent),
+						packetIDs.client_createMatch: handleEvent(createMatchEvent),
+						packetIDs.client_joinMatch: handleEvent(joinMatchEvent),
+						packetIDs.client_partMatch: handleEvent(partMatchEvent),
+						packetIDs.client_matchChangeSlot: handleEvent(changeSlotEvent),
+						packetIDs.client_matchChangeSettings: handleEvent(changeMatchSettingsEvent),
+						packetIDs.client_matchChangePassword: handleEvent(changeMatchPasswordEvent),
+						packetIDs.client_matchChangeMods: handleEvent(changeMatchModsEvent),
+						packetIDs.client_matchReady: handleEvent(matchReadyEvent),
+						packetIDs.client_matchNotReady: handleEvent(matchReadyEvent),
+						packetIDs.client_matchLock: handleEvent(matchLockEvent),
+						packetIDs.client_matchStart: handleEvent(matchStartEvent),
+						packetIDs.client_matchLoadComplete: handleEvent(matchPlayerLoadEvent),
+						packetIDs.client_matchSkipRequest: handleEvent(matchSkipEvent),
+						packetIDs.client_matchScoreUpdate: handleEvent(matchFramesEvent),
+						packetIDs.client_matchComplete: handleEvent(matchCompleteEvent),
+						packetIDs.client_matchNoBeatmap: handleEvent(matchNoBeatmapEvent),
+						packetIDs.client_matchHasBeatmap: handleEvent(matchHasBeatmapEvent),
+						packetIDs.client_matchTransferHost: handleEvent(matchTransferHostEvent),
+						packetIDs.client_matchFailed: handleEvent(matchFailedEvent),
+						packetIDs.client_matchChangeTeam: handleEvent(matchChangeTeamEvent),
+						packetIDs.client_invite: handleEvent(matchInviteEvent),
+						packetIDs.client_tournamentMatchInfoRequest: handleEvent(tournamentMatchInfoRequestEvent),
+						packetIDs.client_tournamentJoinMatchChannel: handleEvent(tournamentJoinMatchChannelEvent),
+						packetIDs.client_tournamentLeaveMatchChannel: handleEvent(tournamentLeaveMatchChannelEvent),
+					}
 
 					# Process/ignore packet
 					if packetID != 4:
