@@ -1,5 +1,7 @@
-## pep.py
-The Bancho RealistikOsu uses (pased on Ainu's version of pep.py by Ripple) It handles:
+# pep.py
+The RealistikOsu Bancho packet server!
+
+## Features
 - Client login
 - Online users listing and statuses
 - Public and private chat
