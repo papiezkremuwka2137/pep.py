@@ -91,6 +91,7 @@ def faq(fro, chan, message):
 	return messages[key]
 
 def roll(fro, chan, message):
+	"""Rolls a number between 0 and 100 (or provided number)."""
 	maxPoints = 100
 	if len(message) >= 1:
 		if message[0].isdigit() and int(message[0]) > 0:
@@ -103,6 +104,7 @@ def roll(fro, chan, message):
 #	return random.choice(["yes", "no", "maybe"])
 
 def alert(fro, chan, message):
+	"""Sends a notification to all currently online members."""
 	msg = ' '.join(message[:]).strip()
 	if not msg:
 		return False
@@ -110,6 +112,8 @@ def alert(fro, chan, message):
 	return False
 
 def alertUser(fro, chan, message):
+	"""Sends a notification to a specific user."""
+
 	target = message[0].lower()
 	targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(target), safe=True)
 	if targetToken is not None:
@@ -140,6 +144,7 @@ def moderated(fro, chan, message):
 		return "You are trying to put a private chat in moderated mode. Are you serious?!? You're fired."
 
 def kickAll(fro, chan, message):
+	"""Kicks all members from the server (except staff)."""
 	# Kick everyone but mods/admins
 	toKick = []
 	with glob.tokens:
@@ -155,6 +160,7 @@ def kickAll(fro, chan, message):
 	return "Whoops! Who needs players anyways?"
 
 def kick(fro, chan, message):
+	"""Kicks a specific member from the server."""
 	# Get parameters
 	target = message[0].lower()
 	if target == glob.BOT_NAME.lower():
@@ -173,6 +179,7 @@ def kick(fro, chan, message):
 	return "{} has been kicked from the server.".format(target)
 
 def fokabotReconnect(fro, chan, message):
+	"""Forces the bot to reconnect."""
 	# Check if the bot is already connected
 	if glob.tokens.getTokenFromUserID(999) is not None:
 		return "{} is already connected to RealistikOsu!".format(glob.BOT_NAME)
@@ -182,6 +189,7 @@ def fokabotReconnect(fro, chan, message):
 	return False
 
 def silence(fro, chan, message):
+	"""Silences a specific user for a specific interval."""
 	message = [x.lower() for x in message]
 	target = message[0]
 	amount = message[1]
@@ -230,6 +238,7 @@ def silence(fro, chan, message):
 	return msg
 
 def removeSilence(fro, chan, message):
+	"""Unsilences a specific user."""
 	# Get parameters
 	for i in message:
 		i = i.lower()
@@ -253,6 +262,7 @@ def removeSilence(fro, chan, message):
 	return "{}'s silence reset".format(target)
 
 def ban(fro, chan, message):
+	"""Bans a specific user."""
 	# Get parameters
 	for i in message:
 		i = i.lower()
@@ -277,6 +287,7 @@ def ban(fro, chan, message):
 	return "RIP {}. You will not be missed.".format(target)
 
 def unban(fro, chan, message):
+	"""Unans a specific user."""
 	# Get parameters
 	for i in message:
 		i = i.lower()
@@ -295,6 +306,7 @@ def unban(fro, chan, message):
 	return "Welcome back {}!".format(target)
 
 def restrict(fro, chan, message):
+	"""Restricts a specific user."""
 	# Get parameters
 	for i in message:
 		i = i.lower()
@@ -320,6 +332,7 @@ def restrict(fro, chan, message):
 	return "Bye bye {}. See you later, maybe.".format(target)
 
 def freeze(fro, chan, message):
+	"""Freezes a specific user."""
 	for i in message:
 		i = i.lower()
 	target = message[0]
@@ -347,6 +360,7 @@ def freeze(fro, chan, message):
 	return "User has been frozen!"
 
 def unfreeze(fro, chan, message):
+	"""Unfreezes a specific user."""
 	for i in message:
 		i = i.lower()
 	target = message[0]
@@ -370,6 +384,7 @@ def unfreeze(fro, chan, message):
 	return "User has been unfrozen!"
 
 def changeUsername(fro, chan, message):
+	"""Lets you change your username."""
 	target = userUtils.safeUsername(fro)
 	new = message[0]
 	newl = message[0].lower()
@@ -390,6 +405,7 @@ def changeUsername(fro, chan, message):
 		i.kick("Your username has been changed to {}. Please relog!".format(new))
 
 def unrestrict(fro, chan, message):
+	"""Unrestricts a specific user."""
 	# Get parameters
 	for i in message:
 		i = i.lower()
@@ -458,6 +474,7 @@ def systemMaintenance(fro, chan, message):
 	return msg
 
 def systemStatus(fro, chan, message):
+	"""Shows the current server status."""
 	# Print some server info
 	data = systemHelper.getSystemInfo()
 
@@ -486,6 +503,7 @@ def systemStatus(fro, chan, message):
 
 
 def getPPMessage(userID, just_data = False):
+	"""Display PP stats for a map."""
 	try:
 		# Get user token
 		token = glob.tokens.getTokenFromUserID(userID)
@@ -555,6 +573,7 @@ def getPPMessage(userID, just_data = False):
 	#	return False
 
 def tillerinoNp(fro, chan, message):
+	"""Displays PP stats for a specific map."""
 	try:
 		# Mirror list trigger for #spect_
 		if chan.startswith("#spect_"):
@@ -612,6 +631,7 @@ def tillerinoNp(fro, chan, message):
 
 
 def tillerinoMods(fro, chan, message):
+	"""Displays the PP stats for a specific map with specific mods."""
 	try:
 		# Run the command in PM only
 		if chan.startswith("#"):
@@ -668,6 +688,7 @@ def tillerinoMods(fro, chan, message):
 		return False
 
 def tillerinoAcc(fro, chan, message):
+	"""Displays the PP stats for a specific map with a specific accuracy."""
 	try:
 		# Run the command in PM only
 		if chan.startswith("#"):
@@ -815,6 +836,7 @@ def updateBeatmap(fro, chan, message):
 		return False
 
 def report(fro, chan, message):
+	"""Reports a specific user."""
 	msg = ""
 	try:
 		# TODO: Rate limit
@@ -898,6 +920,7 @@ def getSpectatorHostUserIDFromChannel(chan):
 	return userID
 
 def multiplayer(fro, chan, message):
+	"""All the multiplayer subcommands."""
 	def mpMake():
 		if len(message) < 2:
 			raise exceptions.invalidArgumentsException("Wrong syntax: !mp make <name>")
@@ -1279,18 +1302,6 @@ def switchServer(fro, chan, message):
 	# Disconnect the user from the origin server
 	# userToken.kick()
 	return "{} has been connected to {}".format(target, newServer)
-
-def rtx(fro, chan, message):
-	target = message[0]
-	message = " ".join(message[1:]).strip()
-	if not message:
-		return "Invalid message"
-	targetUserID = userUtils.getIDSafe(target)
-	if not targetUserID:
-		return "{}: user not found".format(target)
-	userToken = glob.tokens.getTokenFromUserID(targetUserID, ignoreIRC=True, _all=False)
-	userToken.enqueue(serverPackets.rtx(message))
-	return ":ok_hand:"
 	
 def editMap(fro, chan, message): # Edit maps ranking status ingame. // Added by cmyui and edited by Aoba
 	messages = [m.lower() for m in message]
@@ -1423,6 +1434,7 @@ def whitelistUserPPLimit(fro, chan, message):
 	return "{user} has been whitelisted from autorestrictions on {rx}.".format(user=target, rx='relax' if rx else 'vanilla')
 	
 def chimu(fro, chan, message):
+	"""Gets a download URL for the beatmap from Chimu."""
 	try:
 		matchID = getMatchIDFromChannel(chan)
 	except exceptions.wrongChannelException:
@@ -1444,6 +1456,7 @@ def chimu(fro, chan, message):
 	return chimuMessage(beatmapID)
 
 def beatconnect(fro, chan, message):
+	"""Gets a download URL for the beatmap from Beatconnect."""
 	try:
 		matchID = getMatchIDFromChannel(chan)
 	except exceptions.wrongChannelException:
@@ -1677,12 +1690,7 @@ commands = [
 		"privileges": privileges.ADMIN_MANAGE_SERVERS,
 		"syntax": "<username> <server_address>",
 		"callback": switchServer
-	}, {
-		"trigger": "!rtx",
-		"privileges": privileges.ADMIN_MANAGE_USERS,
-		"syntax": "<username> <message>",
-		"callback": rtx
-	}, {
+	},{
 		"trigger": "!username",
 		"syntax": "<new username>",
 		"privileges": privileges.USER_DONOR,
@@ -1714,7 +1722,7 @@ def help_cmd(fro, chan, message):
 		if command["trigger"][0] != "!": continue
 
 		# Make sure callback docstring is not none
-		docstr = command["trigger"].__doc__ # Miss you walrus
+		docstr = command.get("trigger").__doc__ # Miss you walrus
 		if docstr is None: docstr = "No description available."
 
 		help_cmd += f" - {command['trigger']} - {docstr}\n"
