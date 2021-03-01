@@ -22,11 +22,11 @@ from common.web import cheesegull
 from datetime import datetime
 from datetime import timedelta
 
-def bloodcatMessage(beatmapID):
+def chimuMessage(beatmapID):
 	beatmap = glob.db.fetch("SELECT song_name, beatmapset_id FROM beatmaps WHERE beatmap_id = %s LIMIT 1", [beatmapID])
 	if beatmap is None:
-		return "Sorry, I'm not able to provide a download link for this map :("
-	return "Download [https://bloodcat.com/osu/s/{} {}] from Bloodcat".format(
+		return "That map doesn't seem to be in our database? Here is a download link that may not work"
+	return "Download [https://chimu.moe/en/d/{} {}] from Chimu".format(
 		beatmap["beatmapset_id"],
 		beatmap["song_name"],
 	)
@@ -34,7 +34,7 @@ def bloodcatMessage(beatmapID):
 def beatconnectMessage(beatmapID):
 	beatmap = glob.db.fetch("SELECT song_name, beatmapset_id FROM beatmaps WHERE beatmap_id = %s LIMIT 1", [beatmapID])
 	if beatmap is None:
-		return "Sorry, I'm not able to provide a download link for this map :("
+		return "That map doesn't seem to be in our database? Try getting someone to play it first and then request."
 	return "Download [https://beatconnect.io/b/{} {}] from Beatconnect".format(
 		beatmap["beatmapset_id"],
 		beatmap["song_name"],
@@ -43,8 +43,8 @@ def beatconnectMessage(beatmapID):
 def mirrorMessage(beatmapID):
 	beatmap = glob.db.fetch("SELECT song_name, beatmapset_id FROM beatmaps WHERE beatmap_id = %s LIMIT 1", [beatmapID])
 	if beatmap is None:
-		return "Sorry, I'm not able to provide a download link for this map :("
-	return "Download {} from [https://beatconnect.io/b/{} Beatconnect], [https://bloodcat.com/osu/s/{} Bloodcat] or [osu://dl/{} osu!direct].".format(
+		return "That map doesn't seem to be in our database? Try getting someone to play it first and then request."
+	return "Download {} from [https://beatconnect.io/b/{} Beatconnect], [https://chimu.moe/en/d/{} Chimu] or [osu://dl/{} osu!direct].".format(
 		beatmap["song_name"],
 		beatmap["beatmapset_id"],
 		beatmap["beatmapset_id"],
@@ -213,8 +213,8 @@ def silence(fro, chan, message):
 		return "Invalid time format (s/m/h/d)."
 
 	# Max silence time is 7 days
-	if silenceTime > 604800:
-		return "Invalid silence time. Max silence time is 7 days."
+	if silenceTime > 2.628e+6:
+		return "Invalid silence time. Max silence time is 1 month."
 
 	# Send silence packet to target if he's connected
 	targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(target), safe=True)
@@ -625,7 +625,7 @@ def tillerinoMods(fro, chan, message):
 
 		# Make sure the user has triggered the bot with /np command
 		if token.tillerino[0] == 0:
-			return "Please give me a beatmap first with /np command."
+			return "You must firstly select a beatmap using the /np command."
 
 		# Check passed mods and convert to enum
 		modsList = [message[0][i:i+2].upper() for i in range(0, len(message[0]), 2)]
@@ -681,7 +681,7 @@ def tillerinoAcc(fro, chan, message):
 
 		# Make sure the user has triggered the bot with /np command
 		if token.tillerino[0] == 0:
-			return "Please give me a beatmap first with /np command."
+			return "You must firstly select a beatmap using the /np command."
 
 		# Convert acc to float
 		acc = float(message[0])
@@ -762,10 +762,6 @@ def tillerinoLast(fro, chan, message):
 		log.error(a)
 		return False
 
-def mm00(fro, chan, message):
-	random.seed()
-	return random.choice(["meme", "MA MAURO ESISTE?"])
-
 def pp(fro, chan, message):
 	if chan.startswith("#"):
 		return False
@@ -807,7 +803,7 @@ def updateBeatmap(fro, chan, message):
 
 		# Make sure the user has triggered the bot with /np command
 		if token.tillerino[0] == 0:
-			return "Please give me a beatmap first with /np command."
+			return "You must firstly select a beatmap using the /np command."
 
 		# Send the request to cheesegull
 		ok, message = cheesegull.updateBeatmap(token.tillerino[0])
@@ -1426,7 +1422,7 @@ def whitelistUserPPLimit(fro, chan, message):
 	userUtils.whitelistUserPPLimit(userID, rx)
 	return "{user} has been whitelisted from autorestrictions on {rx}.".format(user=target, rx='relax' if rx else 'vanilla')
 	
-def bloodcat(fro, chan, message):
+def chimu(fro, chan, message):
 	try:
 		matchID = getMatchIDFromChannel(chan)
 	except exceptions.wrongChannelException:
@@ -1445,7 +1441,7 @@ def bloodcat(fro, chan, message):
 		if spectatorHostToken is None:
 			return "The spectator host is offline."
 		beatmapID = spectatorHostToken.beatmapID
-	return bloodcatMessage(beatmapID)
+	return chimuMessage(beatmapID)
 
 def beatconnect(fro, chan, message):
 	try:
@@ -1523,9 +1519,6 @@ commands = [
 		"trigger": "!report",
 		"callback": report
 	}, {
-		"trigger": "!help",
-		"response": "Click (here)[https://ussr.pl/doc/4] for full command list"
-	}, {
 		"trigger": "!ppboard",
 		"syntax": "<relax/vanilla>",
 		"callback": usePPBoard
@@ -1553,10 +1546,8 @@ commands = [
 		"syntax": "<rank/unrank> <set/map> <ID>",
 		"privileges": privileges.ADMIN_MANAGE_BEATMAPS,
 		"callback": editMap
-	}, {
-		"trigger": "!mm00",
-		"callback": mm00
-	}, {
+	},
+	{
 		"trigger": "!alert",
 		"syntax": "<message>",
 		"privileges": privileges.ADMIN_SEND_ALERTS,
@@ -1697,19 +1688,48 @@ commands = [
 		"privileges": privileges.USER_DONOR,
 		"callback": changeUsername
 	}, {
-		"trigger": "!bloodcat",
-		"callback": bloodcat
+		"trigger": "!chimu",
+		"callback": chimu
+	},
+	{
+		"trigger": "!mirrors",
+		"callback": mirror
+	},
+	{
+		"trigger": "!acc",
+		"callback": tillerinoAcc,
+		"syntax": "<accuarcy>"
 	}
-	#
-	#	"trigger": "!acc",
-	#	"callback": tillerinoAcc,
-	#	"syntax": "<accuarcy>"
-	#}
 ]
+
+# Weird placement, but /shrug
+
+def help_cmd(fro, chan, message):
+	"""Lists all currently available commands!"""
+
+	help_cmd = f"List of all currently available commands on RealistikOsu! ({len(commands)} total)\n"
+
+	for command in commands:
+		# Basic checks.
+		if command["trigger"][0] != "!": continue
+
+		# Make sure callback docstring is not none
+		docstr = command["trigger"].__doc__ # Miss you walrus
+		if docstr is None: docstr = "No description available."
+
+		help_cmd += f" - {command['trigger']} - {docstr}\n"
+
+# Manually add it ig.
+commands.append(
+	{
+		"triggers": "!help",
+		"callback": help_cmd
+	}
+)
 
 # Commands list default values
 for cmd in commands:
 	cmd.setdefault("syntax", "")
 	cmd.setdefault("privileges", None)
 	cmd.setdefault("callback", None)
-	cmd.setdefault("response", "u w0t m8?")
+	cmd.setdefault("response", ":thonk:")

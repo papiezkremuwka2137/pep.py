@@ -58,6 +58,63 @@ from helpers import packetHelper
 from objects import glob
 from common.sentry import sentry
 
+# Placing this here so we do not have to register this every conn.
+eventHandler = {
+	packetIDs.client_changeAction: handleEvent(changeActionEvent),
+	packetIDs.client_logout: handleEvent(logoutEvent),
+	packetIDs.client_friendAdd: handleEvent(friendAddEvent),
+	packetIDs.client_friendRemove: handleEvent(friendRemoveEvent),
+	packetIDs.client_userStatsRequest: handleEvent(userStatsRequestEvent),
+	packetIDs.client_requestStatusUpdate: handleEvent(requestStatusUpdateEvent),
+	packetIDs.client_userPanelRequest: handleEvent(userPanelRequestEvent),
+	packetIDs.client_channelJoin: handleEvent(channelJoinEvent),
+	packetIDs.client_channelPart: handleEvent(channelPartEvent),
+	packetIDs.client_sendPublicMessage: handleEvent(sendPublicMessageEvent),
+	packetIDs.client_sendPrivateMessage: handleEvent(sendPrivateMessageEvent),
+	packetIDs.client_setAwayMessage: handleEvent(setAwayMessageEvent),
+	packetIDs.client_startSpectating: handleEvent(startSpectatingEvent),
+	packetIDs.client_stopSpectating: handleEvent(stopSpectatingEvent),
+	packetIDs.client_cantSpectate: handleEvent(cantSpectateEvent),
+	packetIDs.client_spectateFrames: handleEvent(spectateFramesEvent),
+	packetIDs.client_joinLobby: handleEvent(joinLobbyEvent),
+	packetIDs.client_partLobby: handleEvent(partLobbyEvent),
+	packetIDs.client_createMatch: handleEvent(createMatchEvent),
+	packetIDs.client_joinMatch: handleEvent(joinMatchEvent),
+	packetIDs.client_partMatch: handleEvent(partMatchEvent),
+	packetIDs.client_matchChangeSlot: handleEvent(changeSlotEvent),
+	packetIDs.client_matchChangeSettings: handleEvent(changeMatchSettingsEvent),
+	packetIDs.client_matchChangePassword: handleEvent(changeMatchPasswordEvent),
+	packetIDs.client_matchChangeMods: handleEvent(changeMatchModsEvent),
+	packetIDs.client_matchReady: handleEvent(matchReadyEvent),
+	packetIDs.client_matchNotReady: handleEvent(matchReadyEvent),
+	packetIDs.client_matchLock: handleEvent(matchLockEvent),
+	packetIDs.client_matchStart: handleEvent(matchStartEvent),
+	packetIDs.client_matchLoadComplete: handleEvent(matchPlayerLoadEvent),
+	packetIDs.client_matchSkipRequest: handleEvent(matchSkipEvent),
+	packetIDs.client_matchScoreUpdate: handleEvent(matchFramesEvent),
+	packetIDs.client_matchComplete: handleEvent(matchCompleteEvent),
+	packetIDs.client_matchNoBeatmap: handleEvent(matchNoBeatmapEvent),
+	packetIDs.client_matchHasBeatmap: handleEvent(matchHasBeatmapEvent),
+	packetIDs.client_matchTransferHost: handleEvent(matchTransferHostEvent),
+	packetIDs.client_matchFailed: handleEvent(matchFailedEvent),
+	packetIDs.client_matchChangeTeam: handleEvent(matchChangeTeamEvent),
+	packetIDs.client_invite: handleEvent(matchInviteEvent),
+	packetIDs.client_tournamentMatchInfoRequest: handleEvent(tournamentMatchInfoRequestEvent),
+	packetIDs.client_tournamentJoinMatchChannel: handleEvent(tournamentJoinMatchChannelEvent),
+	packetIDs.client_tournamentLeaveMatchChannel: handleEvent(tournamentLeaveMatchChannelEvent),
+}
+# Packets processed if in restricted mode.
+# All other packets will be ignored if the user is in restricted mode
+packetsRestricted = [
+	packetIDs.client_logout,
+	packetIDs.client_userStatsRequest,
+	packetIDs.client_requestStatusUpdate,
+	packetIDs.client_userPanelRequest,
+	packetIDs.client_changeAction,
+	packetIDs.client_channelJoin,
+	packetIDs.client_channelPart,
+]
+
 
 class handler(requestsManager.asyncRequestHandler):
 	@tornado.web.asynchronous
@@ -74,14 +131,14 @@ class handler(requestsManager.asyncRequestHandler):
 		requestData = self.request.body
 
 		# Server's token string and request data
-		responseTokenString = "ayy"
+		responseTokenString = ""
 		responseData = bytes()
 
 		if requestTokenString is None:
 			# No token, first request. Handle login.
 			responseTokenString, responseData = loginEvent.handle(self)
 		else:
-			userToken = None	# default value
+			userToken = None
 			try:
 				# This is not the first packet, send response based on client's request
 				# Packet start position, used to read stacked packets
@@ -105,76 +162,11 @@ class handler(requestsManager.asyncRequestHandler):
 					dataLength = packetHelper.readPacketLength(leftData)
 					packetData = requestData[pos:(pos+dataLength+7)]
 
-					# Console output if needed
-					if glob.outputPackets and packetID != 4:
-						log.debug("Incoming packet ({})({}):\n\nPacket code: {}\nPacket length: {}\nSingle packet data: {}\n".format(requestTokenString, userToken.username, str(packetID), str(dataLength), str(packetData)))
-
 					# Event handler
 					def handleEvent(ev):
 						def wrapper():
 							ev.handle(userToken, packetData)
 						return wrapper
-
-					eventHandler = {
-						packetIDs.client_changeAction: handleEvent(changeActionEvent),
-						packetIDs.client_logout: handleEvent(logoutEvent),
-						packetIDs.client_friendAdd: handleEvent(friendAddEvent),
-						packetIDs.client_friendRemove: handleEvent(friendRemoveEvent),
-						packetIDs.client_userStatsRequest: handleEvent(userStatsRequestEvent),
-						packetIDs.client_requestStatusUpdate: handleEvent(requestStatusUpdateEvent),
-						packetIDs.client_userPanelRequest: handleEvent(userPanelRequestEvent),
-
-						packetIDs.client_channelJoin: handleEvent(channelJoinEvent),
-						packetIDs.client_channelPart: handleEvent(channelPartEvent),
-						packetIDs.client_sendPublicMessage: handleEvent(sendPublicMessageEvent),
-						packetIDs.client_sendPrivateMessage: handleEvent(sendPrivateMessageEvent),
-						packetIDs.client_setAwayMessage: handleEvent(setAwayMessageEvent),
-
-						packetIDs.client_startSpectating: handleEvent(startSpectatingEvent),
-						packetIDs.client_stopSpectating: handleEvent(stopSpectatingEvent),
-						packetIDs.client_cantSpectate: handleEvent(cantSpectateEvent),
-						packetIDs.client_spectateFrames: handleEvent(spectateFramesEvent),
-
-						packetIDs.client_joinLobby: handleEvent(joinLobbyEvent),
-						packetIDs.client_partLobby: handleEvent(partLobbyEvent),
-						packetIDs.client_createMatch: handleEvent(createMatchEvent),
-						packetIDs.client_joinMatch: handleEvent(joinMatchEvent),
-						packetIDs.client_partMatch: handleEvent(partMatchEvent),
-						packetIDs.client_matchChangeSlot: handleEvent(changeSlotEvent),
-						packetIDs.client_matchChangeSettings: handleEvent(changeMatchSettingsEvent),
-						packetIDs.client_matchChangePassword: handleEvent(changeMatchPasswordEvent),
-						packetIDs.client_matchChangeMods: handleEvent(changeMatchModsEvent),
-						packetIDs.client_matchReady: handleEvent(matchReadyEvent),
-						packetIDs.client_matchNotReady: handleEvent(matchReadyEvent),
-						packetIDs.client_matchLock: handleEvent(matchLockEvent),
-						packetIDs.client_matchStart: handleEvent(matchStartEvent),
-						packetIDs.client_matchLoadComplete: handleEvent(matchPlayerLoadEvent),
-						packetIDs.client_matchSkipRequest: handleEvent(matchSkipEvent),
-						packetIDs.client_matchScoreUpdate: handleEvent(matchFramesEvent),
-						packetIDs.client_matchComplete: handleEvent(matchCompleteEvent),
-						packetIDs.client_matchNoBeatmap: handleEvent(matchNoBeatmapEvent),
-						packetIDs.client_matchHasBeatmap: handleEvent(matchHasBeatmapEvent),
-						packetIDs.client_matchTransferHost: handleEvent(matchTransferHostEvent),
-						packetIDs.client_matchFailed: handleEvent(matchFailedEvent),
-						packetIDs.client_matchChangeTeam: handleEvent(matchChangeTeamEvent),
-						packetIDs.client_invite: handleEvent(matchInviteEvent),
-
-						packetIDs.client_tournamentMatchInfoRequest: handleEvent(tournamentMatchInfoRequestEvent),
-						packetIDs.client_tournamentJoinMatchChannel: handleEvent(tournamentJoinMatchChannelEvent),
-						packetIDs.client_tournamentLeaveMatchChannel: handleEvent(tournamentLeaveMatchChannelEvent),
-					}
-
-					# Packets processed if in restricted mode.
-					# All other packets will be ignored if the user is in restricted mode
-					packetsRestricted = [
-						packetIDs.client_logout,
-						packetIDs.client_userStatsRequest,
-						packetIDs.client_requestStatusUpdate,
-						packetIDs.client_userPanelRequest,
-						packetIDs.client_changeAction,
-						packetIDs.client_channelJoin,
-						packetIDs.client_channelPart,
-					]
 
 					# Process/ignore packet
 					if packetID != 4:
@@ -195,11 +187,10 @@ class handler(requestsManager.asyncRequestHandler):
 				responseData = userToken.queue
 				userToken.resetQueue()
 			except exceptions.tokenNotFoundException:
-				# Token not found. Disconnect that user
-				responseData = serverPackets.loginError()
-				responseData += serverPackets.notification("Oh lord! RealistikOsu! looks to have died! Possibly try logging out and in?")
-				log.warning("Received packet from unknown token ({}).".format(requestTokenString))
-				log.info("{} has been disconnected (invalid token)".format(requestTokenString))
+				# Token not found. Get the user to be reconnected.
+				responseData = serverPackets.banchoRestart(1)
+				responseData += serverPackets.notification("You don't seem to be logged into RealistikOsu anymore... This is common during server restarts, trying to log you back in.")
+				log.warning("Received unknown token! This is normal during server restarts. Reconnecting them.")
 			finally:
 				# Unlock token
 				if userToken is not None:
@@ -245,5 +236,5 @@ class handler(requestsManager.asyncRequestHandler):
 	def asyncGet(self):
 		# We are updating this to be full stealth
 		self.write(
-			"""Loading site... <meta http-equiv="refresh" content="0; URL='https://www.youtube.com/watch?v=dQw4w9WgXcQ'" />""""
+			"""Loading site... <meta http-equiv="refresh" content="0; URL='https://www.youtube.com/watch?v=dQw4w9WgXcQ'" />"""
 		)

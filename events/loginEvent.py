@@ -9,29 +9,28 @@ from constants import exceptions
 from constants import serverPackets
 from helpers import chatHelper as chat
 from helpers import countryHelper
-from helpers import locationHelper
 from objects import glob
 from datetime import datetime
 from objects import glob
 import random
 
-# With people naming their helpers 
-# like this, it almost feels like an 
-# adveritsing show.
-from helpers import aobaHelper
-from helpers import kotrikhelper
+# Let people use this without our private module.
+try:
+	from realistik.localise import get_full
+except ImportError:
+	from helpers.locationHelper import get_full
 
 def handle(tornadoRequest):
 	# Data to return
 	responseToken = None
-	responseTokenString = "ayy"
+	responseTokenString = ""
 	responseData = bytes()
 
 	# Get IP from tornado request
 	requestIP = tornadoRequest.getRequestIP()
 
 	# Avoid exceptions
-	clientData = ["unknown", "unknown", "unknown", "unknown", "unknown"]
+	clientData = ("unknown", "unknown", "unknown", "unknown", "unknown")
 	osuVersion = "unknown"
 
 	# Split POST body so we can get username/password/hardware data
@@ -109,7 +108,7 @@ def handle(tornadoRequest):
 		userUtils.logIP(userID, requestIP)
 
 		# Log user osuver
-		kotrikhelper.setUserLastOsuVer(userID, osuVersion)
+		glob.db.execute("UPDATE users SET osuver = %s WHERE id = %s LIMIT 1", [osuVersion, userID])
 
 		# Delete old tokens for that user and generate a new one
 		isTournament = "tourney" in osuVersion
@@ -150,10 +149,6 @@ def handle(tornadoRequest):
 				expireDays = round((expireDate-int(time.time()))/86400)
 				expireIn = "{} days".format(expireDays) if expireDays > 1 else "less than 24 hours"
 				responseToken.enqueue(serverPackets.notification("Your supporter status expires in {}! Following this, you will lose your supporter privileges (such as the further profile customisation options, name changes or profile wipes) and will not be able to access supporter features. If you wish to keep supporting RealistikOsu and you don't want to lose your donor privileges, you can donate again by clicking on 'Donate' on our website.".format(expireIn)))
-
-		# Deprecate telegram 2fa and send alert
-		#if userUtils.deprecateTelegram2Fa(userID):
-		#	responseToken.enqueue(serverPackets.notification("As stated on our blog, Telegram 2FA has been deprecated on 29th June 2018. Telegram 2FA has just been disabled from your account. If you want to keep your account secure with 2FA, please enable TOTP-based 2FA from our website https://ripple.moe. Thank you for your patience."))
 
 		# Set silence end UNIX time in token
 		responseToken.silenceEndTime = userUtils.getSilenceEnd(userID)
@@ -202,50 +197,55 @@ def handle(tornadoRequest):
 		# b20190401.22f56c084ba339eefd9c7ca4335e246f80 = Ainu Aoba's Birthday Build
 		# b20191223.3 = Unknown Ainu build? (Taken from most users osuver in cookiezi.pw)
 		# b20190226.2 = hqOsu (hq-af)
+
 		if glob.conf.extra["mode"]["anticheat"]:
 			# Ainu Client 2020 update
-			if tornadoRequest.request.headers.get("ainu") == "happy":
+			if tornadoRequest.request.headers.get("ainu"):
 				log.info(f"Account {userID} tried to use Ainu Client 2020!")
 				if userUtils.isRestricted(userID):
-					responseToken.enqueue(serverPackets.notification("Ainu client... Really? Welp enjoy your ban! -Realistik"))
+					responseToken.enqueue(serverPackets.notification("Note: AINU CLIENT IS DETECTED EVERYWHERE... ITS CREATORS LITERALLY ADDED A WAY TO EASILY DETECT."))
 				else:
 					glob.tokens.deleteToken(userID)
 					userUtils.restrict(userID)
+					userUtils.appendNotes(userID, "User restricted on login for Ainu Client 2020.")
 					raise exceptions.loginCheatClientsException()
 			# Ainu Client 2019
-			elif aobaHelper.getOsuVer(userID) in ["0Ainu", "b20190326.2", "b20190401.22f56c084ba339eefd9c7ca4335e246f80", "b20191223.3"]:
+			elif osuVersion in ["0Ainu", "b20190326.2", "b20190401.22f56c084ba339eefd9c7ca4335e246f80", "b20191223.3"]:
 				log.info(f"Account {userID} tried to use Ainu Client!")
 				if userUtils.isRestricted(userID):
-					responseToken.enqueue(serverPackets.notification("Ainu client... Really? Welp enjoy your ban! -Realistik"))
+					responseToken.enqueue(serverPackets.notification("Note: AINU CLIENT IS DETECTED EVERYWHERE..."))
 				else:
 					glob.tokens.deleteToken(userID)
 					userUtils.restrict(userID)
+					userUtils.appendNotes(userID, "User restricted on login for Ainu Client 2019 (or older).")
 					raise exceptions.loginCheatClientsException()
 			# hqOsu
-			elif aobaHelper.getOsuVer(userID) == "b20190226.2":
+			elif osuVersion == "b20190226.2":
 				log.info(f"Account {userID} tried to use hqOsu!")
 				if userUtils.isRestricted(userID):
-					responseToken.enqueue(serverPackets.notification("Trying to use hqOsu in here? Well... No, sorry. We don't allow cheats here. Go play on Aminosu."))
+					responseToken.enqueue(serverPackets.notification("Comedian."))
 				else:
 					glob.tokens.deleteToken(userID)
 					userUtils.restrict(userID)
+					userUtils.appendNotes(userID, "User restricted on login for HQOsu (normal).")
 					raise exceptions.loginCheatClientsException()
 			
 			#hqosu legacy
-			elif aobaHelper.getOsuVer(userID) == "b20190716.5":
+			elif osuVersion == "b20190716.5":
 				log.info(f"Account {userID} tried to use hqOsu legacy!")
 				if userUtils.isRestricted(userID):
-					responseToken.enqueue(serverPackets.notification("Trying to play with HQOsu Legacy? Cute..."))
+					responseToken.enqueue(serverPackets.notification("Comedian."))
 				else:
 					glob.tokens.deleteToken(userID)
 					userUtils.restrict(userID)
+					userUtils.appendNotes(userID, "User restricted on login for HQOsu (legacy).")
 					raise exceptions.loginCheatClientsException()
 
 		# Send all needed login packets
 		responseToken.enqueue(serverPackets.silenceEndTime(silenceSeconds))
 		responseToken.enqueue(serverPackets.userID(userID))
 		responseToken.enqueue(serverPackets.protocolVersion())
-		responseToken.enqueue(serverPackets.userSupporterGMT(userSupporter, userGMT, userTournament))
+		responseToken.enqueue(serverPackets.userSupporterGMT(userSupporter, userGMT, userTournament)) # Greenwich Mean Time
 		responseToken.enqueue(serverPackets.userPanel(userID, True))
 		responseToken.enqueue(serverPackets.userStats(userID, True))
 
@@ -278,15 +278,15 @@ def handle(tornadoRequest):
 				if not token.restricted:
 					responseToken.enqueue(serverPackets.userPanel(token.userID))
 
-		# Get location and country from ip.zxq.co or database
+		# Localise the user based off IP.
 		if glob.localize:
 			# Get location and country from IP
-			latitude, longitude = locationHelper.getLocation(requestIP)
-			countryLetters = locationHelper.getCountry(requestIP)
+			latitude, longitude, countryLetters = get_full(requestIP)
+
 			country = countryHelper.getCountryID(countryLetters)
 		else:
 			# Set location to 0,0 and get country from db
-			log.warning("Location skipped")
+			log.warning("Localisation of user skipped! If this was not intended, please check your pep.py configuration.")
 			latitude = 0
 			longitude = 0
 			countryLetters = "XX"

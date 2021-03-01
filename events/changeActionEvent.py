@@ -82,7 +82,7 @@ if userToken.matchID != -1 and userToken.actionID != actions.MULTIPLAYING and us
 			userToken.relaxAnnounce = False
 			userToken.enqueue(serverPackets.notification("You've disabled relax. We've changed back to the Regular leaderboard."))
 		"""
-	glob.db.execute("UPDATE users_stats SET current_status = %s WHERE id = %s", [UserText, userID])
+	#glob.db.execute("UPDATE users_stats SET current_status = %s WHERE id = %s", [UserText, userID])
 	# Enqueue our new user panel and stats to us and our spectators
 	recipients = [userToken]
 	if len(userToken.spectators) > 0:

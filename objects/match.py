@@ -442,15 +442,15 @@ class match:
 		#	chat.sendMessage(glob.BOT_NAME, chanName, "Match history available [{} here]".format(
 		#		"https://vinse.ussr.pl/match/{}".format(self.vinseID)
 		#	))
+
+		# Changing this to be a general notice.
 		if not self.bloodcatAlert:
 			chat.sendMessage(
 				glob.BOT_NAME,
 				chanName,
-				"and uh... in case you're playing unranked or broken maps "
-				"that are now available through ripple's osu!direct, you can "
-				"type '!bloodcat' in the chat to get a download link for the "
-				"currently selected map from Bloodcat! If osu!direct is not working, "
-				"You can still use '!beatconnect' as a mirror too! "
+				"Hey! Welcome to the RealistikOsu multiplayer! If you ever encounter "
+				"a map you are unable to download through our direct, you can use the "
+				"!mirror command to get an external download link!"
 			)
 			self.bloodcatAlert = True
 

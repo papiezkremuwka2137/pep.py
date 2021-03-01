@@ -7,6 +7,7 @@ from common.ripple import userUtils
 from constants import fokabotCommands
 from constants import serverPackets
 from objects import glob
+from common.log import logUtils as log
 
 # Tillerino np regex, compiled only once to increase performance
 npRegex = re.compile("^https?:\\/\\/osu\\.ppy\\.sh\\/b\\/(\\d*)")
@@ -65,10 +66,13 @@ def fokabotResponse(fro, chan, message):
 				return "Wrong syntax: {} {}".format(i["trigger"], i["syntax"])
 
 			# Return response or execute callback
-			if i["callback"] is None:
-				return i["response"]
-			else:
-				return i["callback"](fro, chan, message[1:])
+			try:
+				if i["callback"] is None:
+					return i["response"]
+				else:
+					return i["callback"](fro, chan, message[1:])
+			except Exception as e:
+				log.error(f"There was an exception executing command '{message}'. Exception {e}.")
 
 	# No commands triggered
 	return False

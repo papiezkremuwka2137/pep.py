@@ -42,8 +42,11 @@ class banchoConfig:
 			"Don't forget to visit c.ussr.pl!",
 			"WE SERVE THE SOVIET UNION!",
 			"Ran by best VEVO channel!",
-			"Stay home!",
-			"Spelchecked!"
+			"Stay home! Click circles!",
+			"Spelchecked!",
+			"Screw you segmentation!",
+			"I forgot how to decrypt bcrypt",
+			"Introducing  :  Time"
 		]
 
 

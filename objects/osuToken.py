@@ -514,7 +514,7 @@ class token:
 		:return:
 		"""
 		self.restricted = True
-		chat.sendMessage(glob.BOT_NAME, self.username, "Your account is currently in restricted mode. Please visit RealistikOsu's website for more information.")
+		chat.sendMessage(glob.BOT_NAME, self.username, "Your account has been restricted! Please contact the RealistikOsu staff through our Discord server for more info!")
 
 	def resetRestricted(self):
 		"""
@@ -523,7 +523,7 @@ class token:
 
 		:return:
 		"""
-		chat.sendMessage(glob.BOT_NAME, self.username, "Your account has been unrestricted! Please log in again.")
+		chat.sendMessage(glob.BOT_NAME, self.username, "Your account has been unrestricted! Please re-log to refresh your status.")
 
 	def joinStream(self, name):
 		"""
