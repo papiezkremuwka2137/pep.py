@@ -21,15 +21,16 @@ def connect():
 	"""
 	glob.BOT_NAME = userUtils.getUsername(999)
 	token = glob.tokens.addToken(999)
-	token.actionID = actions.IDLE
-	token.actionText = "\nWelcome to RealistikOsu!"
+	token.actionID = actions.WATCHING
+	token.actionText = "over RealistikOsu!"
 	token.pp = 69
 	token.accuracy = 0.69
 	token.playcount = 69
 	token.totalScore = 1337
 	token.timeOffset = 0
-	token.timezone = 24 + 2
+	token.timezone = 24
 	token.country = 2 #this is retared, fuck it im keeping it as europe, couldnt find the uk as its ordered stupidly
+	token.location = (39.01955903386848, 125.75276158057767) # Pyongyang red square
 	glob.streams.broadcast("main", serverPackets.userPanel(999))
 	glob.streams.broadcast("main", serverPackets.userStats(999))
 

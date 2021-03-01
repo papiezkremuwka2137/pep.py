@@ -1,8 +1,5 @@
-from common.log.logUtils import debug
-from time import localtime, strftime
 from colorama import Fore, Back
 import sys
-import os
 import time
 
 CLEAR_FORE = Fore.RESET

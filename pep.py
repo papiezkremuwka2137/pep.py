@@ -91,7 +91,7 @@ if __name__ == "__main__":
 			log.info("Complete!")
 
 		# Read additional config file
-		consoleHelper.printNoNl("Loading additional config file... ")
+		log.info("Loading additional config file... ")
 		try:
 			if not os.path.isfile(glob.conf.config["custom"]["config"]):
 				log.warning("Missing config file at {}; A default one has been generated at this location.".format(glob.conf.config["custom"]["config"]))
@@ -157,7 +157,7 @@ if __name__ == "__main__":
 			raise
 
 		# Delete old bancho sessions
-		consoleHelper.printNoNl("Deleting cached bancho sessions from DB... ")
+		log.info("Deleting cached bancho sessions from DB... ")
 		glob.tokens.deleteBanchoSessions()
 		log.info("Complete!")
 
@@ -180,7 +180,7 @@ if __name__ == "__main__":
 			raise
 
 		# Start fokabot
-		log.info("Connecting FokaBot... ")
+		log.info("Connecting RealistikBot...")
 		fokabot.connect()
 		log.info("Complete!")
 
