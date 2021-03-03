@@ -72,6 +72,51 @@ packetsRestricted = [
 	packetIDs.client_channelPart,
 ]
 
+eventHandler = {
+	packetIDs.client_changeAction: (changeActionEvent),
+	packetIDs.client_logout: (logoutEvent),
+	packetIDs.client_friendAdd: (friendAddEvent),
+	packetIDs.client_friendRemove: (friendRemoveEvent),
+	packetIDs.client_userStatsRequest: (userStatsRequestEvent),
+	packetIDs.client_requestStatusUpdate: (requestStatusUpdateEvent),
+	packetIDs.client_userPanelRequest: (userPanelRequestEvent),
+	packetIDs.client_channelJoin: (channelJoinEvent),
+	packetIDs.client_channelPart: (channelPartEvent),
+	packetIDs.client_sendPublicMessage: (sendPublicMessageEvent),
+	packetIDs.client_sendPrivateMessage: (sendPrivateMessageEvent),
+	packetIDs.client_setAwayMessage: (setAwayMessageEvent),
+	packetIDs.client_startSpectating: (startSpectatingEvent),
+	packetIDs.client_stopSpectating: (stopSpectatingEvent),
+	packetIDs.client_cantSpectate: (cantSpectateEvent),
+	packetIDs.client_spectateFrames: (spectateFramesEvent),
+	packetIDs.client_joinLobby: (joinLobbyEvent),
+	packetIDs.client_partLobby: (partLobbyEvent),
+	packetIDs.client_createMatch: (createMatchEvent),
+	packetIDs.client_joinMatch: (joinMatchEvent),
+	packetIDs.client_partMatch: (partMatchEvent),
+	packetIDs.client_matchChangeSlot: (changeSlotEvent),
+	packetIDs.client_matchChangeSettings: (changeMatchSettingsEvent),
+	packetIDs.client_matchChangePassword: (changeMatchPasswordEvent),
+	packetIDs.client_matchChangeMods: (changeMatchModsEvent),
+	packetIDs.client_matchReady: (matchReadyEvent),
+	packetIDs.client_matchNotReady: (matchReadyEvent),
+	packetIDs.client_matchLock: (matchLockEvent),
+	packetIDs.client_matchStart: (matchStartEvent),
+	packetIDs.client_matchLoadComplete: (matchPlayerLoadEvent),
+	packetIDs.client_matchSkipRequest: (matchSkipEvent),
+	packetIDs.client_matchScoreUpdate: (matchFramesEvent),
+	packetIDs.client_matchComplete: (matchCompleteEvent),
+	packetIDs.client_matchNoBeatmap: (matchNoBeatmapEvent),
+	packetIDs.client_matchHasBeatmap: (matchHasBeatmapEvent),
+	packetIDs.client_matchTransferHost: (matchTransferHostEvent),
+	packetIDs.client_matchFailed: (matchFailedEvent),
+	packetIDs.client_matchChangeTeam: (matchChangeTeamEvent),
+	packetIDs.client_invite: (matchInviteEvent),
+	packetIDs.client_tournamentMatchInfoRequest: (tournamentMatchInfoRequestEvent),
+	packetIDs.client_tournamentJoinMatchChannel: (tournamentJoinMatchChannelEvent),
+	packetIDs.client_tournamentLeaveMatchChannel: (tournamentLeaveMatchChannelEvent),
+}
+
 
 class handler(requestsManager.asyncRequestHandler):
 	@tornado.web.asynchronous
@@ -119,62 +164,11 @@ class handler(requestsManager.asyncRequestHandler):
 					dataLength = packetHelper.readPacketLength(leftData)
 					packetData = requestData[pos:(pos+dataLength+7)]
 
-					# Event handler
-					def handleEvent(ev):
-						def wrapper():
-							ev.handle(userToken, packetData)
-						return wrapper
-					
-					eventHandler = {
-						packetIDs.client_changeAction: handleEvent(changeActionEvent),
-						packetIDs.client_logout: handleEvent(logoutEvent),
-						packetIDs.client_friendAdd: handleEvent(friendAddEvent),
-						packetIDs.client_friendRemove: handleEvent(friendRemoveEvent),
-						packetIDs.client_userStatsRequest: handleEvent(userStatsRequestEvent),
-						packetIDs.client_requestStatusUpdate: handleEvent(requestStatusUpdateEvent),
-						packetIDs.client_userPanelRequest: handleEvent(userPanelRequestEvent),
-						packetIDs.client_channelJoin: handleEvent(channelJoinEvent),
-						packetIDs.client_channelPart: handleEvent(channelPartEvent),
-						packetIDs.client_sendPublicMessage: handleEvent(sendPublicMessageEvent),
-						packetIDs.client_sendPrivateMessage: handleEvent(sendPrivateMessageEvent),
-						packetIDs.client_setAwayMessage: handleEvent(setAwayMessageEvent),
-						packetIDs.client_startSpectating: handleEvent(startSpectatingEvent),
-						packetIDs.client_stopSpectating: handleEvent(stopSpectatingEvent),
-						packetIDs.client_cantSpectate: handleEvent(cantSpectateEvent),
-						packetIDs.client_spectateFrames: handleEvent(spectateFramesEvent),
-						packetIDs.client_joinLobby: handleEvent(joinLobbyEvent),
-						packetIDs.client_partLobby: handleEvent(partLobbyEvent),
-						packetIDs.client_createMatch: handleEvent(createMatchEvent),
-						packetIDs.client_joinMatch: handleEvent(joinMatchEvent),
-						packetIDs.client_partMatch: handleEvent(partMatchEvent),
-						packetIDs.client_matchChangeSlot: handleEvent(changeSlotEvent),
-						packetIDs.client_matchChangeSettings: handleEvent(changeMatchSettingsEvent),
-						packetIDs.client_matchChangePassword: handleEvent(changeMatchPasswordEvent),
-						packetIDs.client_matchChangeMods: handleEvent(changeMatchModsEvent),
-						packetIDs.client_matchReady: handleEvent(matchReadyEvent),
-						packetIDs.client_matchNotReady: handleEvent(matchReadyEvent),
-						packetIDs.client_matchLock: handleEvent(matchLockEvent),
-						packetIDs.client_matchStart: handleEvent(matchStartEvent),
-						packetIDs.client_matchLoadComplete: handleEvent(matchPlayerLoadEvent),
-						packetIDs.client_matchSkipRequest: handleEvent(matchSkipEvent),
-						packetIDs.client_matchScoreUpdate: handleEvent(matchFramesEvent),
-						packetIDs.client_matchComplete: handleEvent(matchCompleteEvent),
-						packetIDs.client_matchNoBeatmap: handleEvent(matchNoBeatmapEvent),
-						packetIDs.client_matchHasBeatmap: handleEvent(matchHasBeatmapEvent),
-						packetIDs.client_matchTransferHost: handleEvent(matchTransferHostEvent),
-						packetIDs.client_matchFailed: handleEvent(matchFailedEvent),
-						packetIDs.client_matchChangeTeam: handleEvent(matchChangeTeamEvent),
-						packetIDs.client_invite: handleEvent(matchInviteEvent),
-						packetIDs.client_tournamentMatchInfoRequest: handleEvent(tournamentMatchInfoRequestEvent),
-						packetIDs.client_tournamentJoinMatchChannel: handleEvent(tournamentJoinMatchChannelEvent),
-						packetIDs.client_tournamentLeaveMatchChannel: handleEvent(tournamentLeaveMatchChannelEvent),
-					}
-
 					# Process/ignore packet
 					if packetID != 4:
 						if packetID in eventHandler:
 							if not userToken.restricted or (userToken.restricted and packetID in packetsRestricted):
-								eventHandler[packetID]()
+								eventHandler[packetID].handle(userToken, packetData)
 							else:
 								log.warning("Ignored packet id from {} ({}) (user is restricted)".format(requestTokenString, packetID))
 						else:

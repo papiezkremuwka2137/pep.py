@@ -24,28 +24,22 @@ from datetime import timedelta
 
 def chimuMessage(beatmapID):
 	beatmap = glob.db.fetch("SELECT song_name, beatmapset_id FROM beatmaps WHERE beatmap_id = %s LIMIT 1", [beatmapID])
-	if beatmap is None:
-		return "That map doesn't seem to be in our database? Here is a download link that may not work"
 	return "Download [https://chimu.moe/en/d/{} {}] from Chimu".format(
 		beatmap["beatmapset_id"],
-		beatmap["song_name"],
+		"Unknown Beatmap" if beatmap is None else beatmap["song_name"],
 	)
 
 def beatconnectMessage(beatmapID):
 	beatmap = glob.db.fetch("SELECT song_name, beatmapset_id FROM beatmaps WHERE beatmap_id = %s LIMIT 1", [beatmapID])
-	if beatmap is None:
-		return "That map doesn't seem to be in our database? Try getting someone to play it first and then request."
 	return "Download [https://beatconnect.io/b/{} {}] from Beatconnect".format(
 		beatmap["beatmapset_id"],
-		beatmap["song_name"],
+		"Unknown Beatmap" if beatmap is None else beatmap["song_name"],
 	)
 	
 def mirrorMessage(beatmapID):
 	beatmap = glob.db.fetch("SELECT song_name, beatmapset_id FROM beatmaps WHERE beatmap_id = %s LIMIT 1", [beatmapID])
-	if beatmap is None:
-		return "That map doesn't seem to be in our database? Try getting someone to play it first and then request."
 	return "Download {} from [https://beatconnect.io/b/{} Beatconnect], [https://chimu.moe/en/d/{} Chimu] or [osu://dl/{} osu!direct].".format(
-		beatmap["song_name"],
+		"Unknown Beatmap" if beatmap is None else beatmap["song_name"],
 		beatmap["beatmapset_id"],
 		beatmap["beatmapset_id"],
 		beatmap["beatmapset_id"],
@@ -74,16 +68,15 @@ def faq(fro, chan, message):
 	# TODO: Unhardcode this
 	messages = {
 		"rules": "Please make sure to check (RealistikOsu! rules)[https://ussr.pl/doc/rules].",
-		"swearing": "Please don't abuse swearing",
-		"spam": "Please don't spam",
-		"offend": "Please don't offend other players",
+		"swearing": "You may swear but do not swear excessively.",
+		"spam": "Spamming is prohibited and may result in an automatic silence.",
+		"offend": "Attempt not to be offensive towards specific players.",
 		"github": "(RealistikOsu! Github page!)[https://github.com/RealistikOsu]",
 		"discord": "(Join RealistikOsu Discord!)[https://discord.gg/87E2K46]",
-		"changelog": "Check our (git repo)[https://github.com/RealistikOsu] for changes!",
-		"english": "Please keep this channel in english.",
+		"changelog": "Check our (GitHub)[https://github.com/RealistikOsu] for changes!",
+		"english": "Please use the English language everywhere with the exception of private multis and dedicated language channels.",
 		"topic": "Can you please drop the topic and talk about something else?",
-		"lines": "Please try to keep your sentences on a single line to avoid getting silenced.",
-		"cheating": "Hacking is not permitted on RealistikOsu! If you spot someone cheating, report them to the staff or RealistikDash."
+		"cheating": "Hacking is not permitted on RealistikOsu! If you spot someone cheating, report them to us."
 	}
 	key = message[0].lower()
 	if key not in messages:
@@ -384,7 +377,7 @@ def unfreeze(fro, chan, message):
 	glob.db.execute("UPDATE `users`  SET `frozen` = '0' WHERE `id` = '{}'".format(targetUserID))
 	glob.db.execute("UPDATE `users`  SET `freezedate` = '0' WHERE `id` = '{}'".format(targetUserID))
 	glob.db.execute("UPDATE users  SET firstloginafterfrozen = '1' WHERE id = '{}'".format(targetUserID))
-	glob.db.execute(f"INSERT IGNORE INTO user_badges (user, badge) VALUES ({targetUserID}), 1005)")
+	#glob.db.execute(f"INSERT IGNORE INTO user_badges (user, badge) VALUES ({targetUserID}), 1005)")
 
 	targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(target), safe=True)
 	if targetToken is not None:
@@ -404,15 +397,12 @@ def changeUsername(fro, chan, message):
 	if not targetUserID:
 		return "{}: User not found".format(target)
 
-	targetToken = glob.tokens.getTokenFromUsername(userUtils.safeUsername(fro), safe=True)
-	userToken = glob.tokens.getTokenFromUserID(targetUserID, ignoreIRC=True, _all=False)
-	tokens = glob.tokens.getTokenFromUsername(userUtils.safeUsername(fro), safe=True, _all=True)
-	glob.db.execute("UPDATE `users`  SET `username` = '{}' WHERE `id` = '{}'".format(new, targetUserID))
-	glob.db.execute("UPDATE `users`  SET `username_safe` = '{}' WHERE `id` = '{}'".format(newl, targetUserID))
+	tokens = glob.tokens.getTokenFromUserID(targetUserID, True)
+	glob.db.execute("UPDATE `users`  SET `username` = '{}', `username_safe` = '{}' WHERE `id` = '{}'".format(new, newl, targetUserID))
 	glob.db.execute("UPDATE `users_stats` SET `username` = '{}' WHERE `id` = '{}'".format(new, targetUserID))
 	glob.db.execute("UPDATE `rx_stats` SET `username` = '{}' WHERE `id` = '{}'".format(new, targetUserID))
-	for i in tokens:
-		i.kick("Your username has been changed to {}. Please relog!".format(new))
+	glob.db.execute("UPDATE `ap_stats` SET `username` = '{}' WHERE `id` = '{}'".format(new, targetUserID))
+	tokens[0].kick("Your username has been changed to {}. Please relog!".format(new))
 
 def unrestrict(fro, chan, message):
 	"""Unrestricts a specific user."""
@@ -472,7 +462,7 @@ def systemMaintenance(fro, chan, message):
 				if not value.admin:
 					who.append(value.userID)
 
-		glob.streams.broadcast("main", serverPackets.notification("Our bancho server is in maintenance mode. Please try to login again later."))
+		glob.streams.broadcast("main", serverPackets.notification("Our realtime server is in maintenance mode. Please try to login again later."))
 		glob.tokens.multipleEnqueue(serverPackets.loginError(), who)
 		msg = "The server is now in maintenance mode!"
 	else:
@@ -485,29 +475,22 @@ def systemMaintenance(fro, chan, message):
 
 def systemStatus(fro, chan, message):
 	"""Shows the current server status."""
-	# Print some server info
+	# Fetch
 	data = systemHelper.getSystemInfo()
-
-	# Final message
-	letsVersion = glob.redis.get("lets:version")
-	if letsVersion is None:
-		letsVersion = "i dont know"
-	else:
-		letsVersion = letsVersion.decode("utf-8")
-	msg = "pep.py bancho server v{}\n".format(glob.VERSION)
-	msg += "LETS scores server\n"
-	msg += "RealistikOsu! version\n"
-	msg += "\n"
-	msg += "=== BANCHO STATS ===\n"
-	msg += "Connected users: {}\n".format(data["connectedUsers"])
-	msg += "Multiplayer matches: {}\n".format(data["matches"])
-	msg += "Uptime: {}\n".format(data["uptime"])
-	msg += "\n"
-	msg += "=== SYSTEM STATS ===\n"
-	msg += "CPU: {}%\n".format(data["cpuUsage"])
-	msg += "RAM: {}GB/{}GB\n".format(data["usedMemory"], data["totalMemory"])
-	if data["unix"]:
-		msg += "Load average: {}/{}/{}\n".format(data["loadAverage"][0], data["loadAverage"][1], data["loadAverage"][2])
+	
+	msg = "\n".join((
+		"---> RealistikOsu <---",
+		" - Realtime Server -",
+		"> Running RealistikOsu pep.py fork.",
+		f"> Online Users: {data['connectedUsers']}",
+		f"> Multiplayer: {data['matches']}",
+		f"> Uptime: {data['uptime']}",
+		"",
+		" - System Statistics -",
+		f"> CPU Utilisation: {data['cpuUsage']}%",
+		f"> RAM Utilisation: {data['usedMemory']}/{data['totalMemory']}",
+		f"> CPU Utilisation History: {'%, '.join(data['loadAverage'])}"
+	))
 
 	return msg
 
@@ -540,7 +523,7 @@ def getPPMessage(userID, just_data = False):
 		# Make sure status is 200
 		if data["status"] != 200:
 			if "message" in data:
-				return "Error in LETS API call ({}).".format(data["message"])
+				return "There has been an exception the in PP API call ({}).".format(data["message"])
 			else:
 				raise exceptions.apiException()
 
@@ -1737,13 +1720,15 @@ def help_cmd(fro, chan, message):
 		if command["trigger"][0] != "!": continue
 
 		# Make sure callback docstring is not none
-		docstr = command.get("trigger").__doc__ # Miss you walrus
+		docstr = command.get("callback").__doc__ # Miss you walrus
 		if docstr is None: docstr = "No description available."
 
 		name = command["trigger"]
 		if command.get("syntax"): name += f" {command['syntax']}"
 
-		help_cmd += f" - {command['trigger']} - {docstr}\n"
+		help_cmd += f" - {name} - {docstr}\n"
+	
+	return help_cmd
 
 # Manually add it ig.
 commands.append(

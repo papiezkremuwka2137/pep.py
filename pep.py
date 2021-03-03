@@ -27,7 +27,6 @@ from handlers import apiServerStatusHandler
 from handlers import apiVerifiedStatusHandler
 from handlers import ciTriggerHandler
 from handlers import mainHandler
-from handlers import heavyHandler
 from handlers import apiUserStatusHandler
 from helpers import configHelper
 from helpers import consoleHelper
@@ -55,8 +54,7 @@ def make_app():
 		(r"/api/v1/verifiedStatus", apiVerifiedStatusHandler.handler),
 		(r"/api/v1/fokabotMessage", apiFokabotMessageHandler.handler),
 		(r"/api/yes/userstats", apiUserStatusHandler.handler),
-		(r"/api/v2/clients/.*", apiGetTheFuckOuttaHere.handler),
-		(r"/stress", heavyHandler.handler)
+		(r"/api/v2/clients/.*", apiGetTheFuckOuttaHere.handler)
 	])
 
 
