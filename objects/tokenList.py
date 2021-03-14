@@ -37,7 +37,7 @@ class tokenList:
 		"""
 		newToken = osuToken.token(userID, ip=ip, irc=irc, timeOffset=timeOffset, tournament=tournament)
 		self.tokens[newToken.token] = newToken
-		glob.redis.set(len(self.tokens))
+		glob.redis.set("ripple:online_users", len(self.tokens))
 		return newToken
 
 	def deleteToken(self, token):
