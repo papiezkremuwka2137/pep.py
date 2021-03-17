@@ -609,7 +609,11 @@ def tillerinoNp(fro, chan, message):
 					modsEnum += mapping[part]
 
 		# Get beatmap id from URL
-		beatmapID = fokabot.npRegex.search(beatmapURL).groups(0)[0]
+		bmap_regex = fokabot.np_url_regex.match(beatmapURL)
+
+		if not bmap_regex: return "There is something weird with this action... Contact RealistikDash immidiately."
+
+		beatmapID = bmap_regex["bid"]
 
 		# Update latest tillerino song for current token
 		token = glob.tokens.getTokenFromUsername(fro)
