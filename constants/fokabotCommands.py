@@ -565,7 +565,6 @@ def getPPMessage(userID, just_data = False):
 		# TODO: print exception
 	#	return False
 
-np_regex = re.compile(r"https://osu\.(?:ussr\.pl|ppy\.sh)/b/(?P<bid>\d{{1,7}}) .+\\")
 def tillerinoNp(fro, chan, message):
 	"""Displays PP stats for a specific map."""
 	try:
@@ -609,12 +608,8 @@ def tillerinoNp(fro, chan, message):
 				if part in mapping.keys():
 					modsEnum += mapping[part]
 
-		# Get beatmap id from URL
-		bmap_regex = np_regex.match(beatmapURL)
-
-		if not bmap_regex: return "There is something weird with this action... Contact RealistikDash immidiately."
-
-		beatmapID = bmap_regex["bid"]
+		# Reject regex. Return to monkey.
+		beatmapID = beatmapURL.split("/")[-1]
 
 		# Update latest tillerino song for current token
 		token = glob.tokens.getTokenFromUsername(fro)
