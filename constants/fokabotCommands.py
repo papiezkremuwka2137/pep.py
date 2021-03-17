@@ -565,6 +565,7 @@ def getPPMessage(userID, just_data = False):
 		# TODO: print exception
 	#	return False
 
+np_regex = re.compile(r"https://osu\.(?:ussr\.pl|ppy\.sh)/b/(?P<bid>\d{{1,7}}) .+\\")
 def tillerinoNp(fro, chan, message):
 	"""Displays PP stats for a specific map."""
 	try:
@@ -609,7 +610,7 @@ def tillerinoNp(fro, chan, message):
 					modsEnum += mapping[part]
 
 		# Get beatmap id from URL
-		bmap_regex = fokabot.np_url_regex.match(beatmapURL)
+		bmap_regex = np_regex.match(beatmapURL)
 
 		if not bmap_regex: return "There is something weird with this action... Contact RealistikDash immidiately."
 

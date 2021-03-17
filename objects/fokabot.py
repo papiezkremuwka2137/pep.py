@@ -10,9 +10,6 @@ from objects import glob
 from logger import log
 from importlib import reload
 
-# Tillerino np regex, compiled only once to increase performance
-np_url_regex = re.compile(r"https://osu\.(?:ussr\.pl|ppy\.sh)/b/(?P<bid>\d{{1,7}})")
-
 def connect():
 	"""
 	Connect FokaBot to Bancho
