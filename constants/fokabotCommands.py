@@ -1693,6 +1693,10 @@ commands = [
 		"callback": chimu
 	},
 	{
+		"trigger": "!beatconnect",
+		"callback": beatconnect
+	},
+	{
 		"trigger": "!mirrors",
 		"callback": mirror
 	},
