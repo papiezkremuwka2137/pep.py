@@ -11,6 +11,7 @@ from helpers import chatHelper as chat
 from helpers import countryHelper
 from objects import glob
 from datetime import datetime
+from helpers.realistik_stuff import Timer
 from objects import glob
 import random
 
@@ -22,6 +23,9 @@ except ImportError:
 	from helpers.locationHelper import get_full
 
 def handle(tornadoRequest):
+	# I wanna benchmark!
+	t = Timer()
+	t.start()
 	# Data to return
 	responseToken = None
 	responseTokenString = ""
@@ -40,6 +44,7 @@ def handle(tornadoRequest):
 	try:
 		# Make sure loginData is valid
 		if len(loginData) < 3:
+			log.error("Login error (invalid login data)!")
 			raise exceptions.invalidArgumentsException()
 
 		# Get HWID, MAC address and more
@@ -62,22 +67,18 @@ def handle(tornadoRequest):
 
 		if not userID:
 			# Invalid username
+			log.error(f"Login failed for user {username} (user not found)!")
 			raise exceptions.loginFailedException()
 		if not userUtils.checkLogin(userID, loginData[1]):
 			# Invalid password
+			log.error(f"Login failed for user {username} (invalid password)!")
 			raise exceptions.loginFailedException()
 
 		# Make sure we are not banned or locked
 		priv = userUtils.getPrivileges(userID)
-		if userUtils.isBanned(userID) and priv & privileges.USER_PENDING_VERIFICATION == 0:
+		if (not priv & 3 > 0) and priv & (privileges.USER_PENDING_VERIFICATION == 0):
+			log.error(f"Login failed for user {username} (user is banned)!")
 			raise exceptions.loginBannedException()
-		if userUtils.isLocked(userID) and priv & privileges.USER_PENDING_VERIFICATION == 0:
-			raise exceptions.loginLockedException()
-
-		# 2FA check
-		if userUtils.check2FA(userID, requestIP):
-			log.warning("Need 2FA check for user {}".format(loginData[0]))
-			raise exceptions.need2FAException()
 
 		# No login errors!
 
@@ -119,7 +120,13 @@ def handle(tornadoRequest):
 		responseTokenString = responseToken.token
 
 		# Check restricted mode (and eventually send message)
-		responseToken.checkRestricted()
+		# Cache this for less db queries
+		user_restricted = (priv & privileges.USER_NORMAL) and not (priv & privileges.USER_PUBLIC)
+
+		if user_restricted:
+			responseToken.setRestricted()
+			responseToken.resetRestricted()
+		#responseToken.checkRestricted()
 
 		# Check if frozen
 		IsFrozen = glob.db.fetch(f"SELECT frozen, firstloginafterfrozen, freezedate FROM users WHERE id = {userID} LIMIT 1") #ok kids, dont ever use formats in sql queries. here i can do it as the userID comes from a trusted source (this being pep.py itself) so it wont leave me susceptable to sql injection
@@ -156,10 +163,11 @@ def handle(tornadoRequest):
 
 		# Get only silence remaining seconds
 		silenceSeconds = responseToken.getSilenceSecondsLeft()
-
 		# Get supporter/GMT
+		
+
 		userGMT = False
-		if not userUtils.isRestricted(userID):
+		if not user_restricted:
 			userSupporter = True
 		else:
 			userSupporter = False
@@ -203,7 +211,7 @@ def handle(tornadoRequest):
 			# Ainu Client 2020 update
 			if tornadoRequest.request.headers.get("ainu"):
 				log.info(f"Account {userID} tried to use Ainu Client 2020!")
-				if userUtils.isRestricted(userID):
+				if user_restricted:
 					responseToken.enqueue(serverPackets.notification("Note: AINU CLIENT IS DETECTED EVERYWHERE... ITS CREATORS LITERALLY ADDED A WAY TO EASILY DETECT."))
 				else:
 					glob.tokens.deleteToken(userID)
@@ -213,7 +221,7 @@ def handle(tornadoRequest):
 			# Ainu Client 2019
 			elif osuVersion in ["0Ainu", "b20190326.2", "b20190401.22f56c084ba339eefd9c7ca4335e246f80", "b20191223.3"]:
 				log.info(f"Account {userID} tried to use Ainu Client!")
-				if userUtils.isRestricted(userID):
+				if user_restricted:
 					responseToken.enqueue(serverPackets.notification("Note: AINU CLIENT IS DETECTED EVERYWHERE..."))
 				else:
 					glob.tokens.deleteToken(userID)
@@ -223,7 +231,7 @@ def handle(tornadoRequest):
 			# hqOsu
 			elif osuVersion == "b20190226.2":
 				log.info(f"Account {userID} tried to use hqOsu!")
-				if userUtils.isRestricted(userID):
+				if user_restricted:
 					responseToken.enqueue(serverPackets.notification("Comedian."))
 				else:
 					glob.tokens.deleteToken(userID)
@@ -234,7 +242,7 @@ def handle(tornadoRequest):
 			#hqosu legacy
 			elif osuVersion == "b20190716.5":
 				log.info(f"Account {userID} tried to use hqOsu legacy!")
-				if userUtils.isRestricted(userID):
+				if user_restricted:
 					responseToken.enqueue(serverPackets.notification("Comedian."))
 				else:
 					glob.tokens.deleteToken(userID)
@@ -344,13 +352,16 @@ def handle(tornadoRequest):
 		# Using oldoldold client, we don't have client data. Force update.
 		# (we don't use enqueue because we don't have a token since login has failed)
 		responseData += serverPackets.forceUpdate()
-		responseData += serverPackets.notification("Hory shitto, your client is TOO old! Nice prehistory! Please turn update it from the settings!")
+		responseData += serverPackets.notification("What... Is... That... Client...")
 	except:
 		log.error("Unknown error!\n```\n{}\n{}```".format(sys.exc_info(), traceback.format_exc()))
 	finally:
 		# Console and discord log
 		if len(loginData) < 3:
 			log.info("Invalid bancho login request from **{}** (insufficient POST data)".format(requestIP), "bunker")
+		
+		t.end()
+		log.info(f"Authentication attempt took {t.time_str()}!")
 
 		# Return token string and data
 		return responseTokenString, responseData

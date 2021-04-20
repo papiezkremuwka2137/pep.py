@@ -259,10 +259,9 @@ def getCountryID(code):
 	:param code: country letters (eg: US)
 	:return: country osu code
 	"""
-	if code in countryCodes:
-		return countryCodes[code]
-	else:
-		return 0
+
+	ccode = countryCodes.get(code)
+	return ccode if ccode is not None else 0
 
 def getCountryLetters(code):
 	"""
