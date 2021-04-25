@@ -46,8 +46,9 @@ from pubSubHandlers import updateStatsHandler
 
 # WE GOT DELTA.
 try:
-	from realistik.delta import deltaApi
+	from realistik import delta
 except ImportError:
+	log.info("Not using Realistik Delta implementation.")
 	from handlers import apiGetTheFuckOuttaHere as deltaApi
 
 def make_app():
