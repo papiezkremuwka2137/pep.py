@@ -44,6 +44,12 @@ from pubSubHandlers import notificationHandler
 from pubSubHandlers import updateSilenceHandler
 from pubSubHandlers import updateStatsHandler
 
+# WE GOT DELTA.
+try:
+	from realistik.delta import deltaApi
+except ImportError:
+	from handlers import apiGetTheFuckOuttaHere as deltaApi
+
 def make_app():
 	return tornado.web.Application([
 		(r"/", mainHandler.handler),
@@ -54,7 +60,7 @@ def make_app():
 		(r"/api/v1/verifiedStatus", apiVerifiedStatusHandler.handler),
 		(r"/api/v1/fokabotMessage", apiFokabotMessageHandler.handler),
 		(r"/api/yes/userstats", apiUserStatusHandler.handler),
-		(r"/api/v2/clients/.*", apiGetTheFuckOuttaHere.handler)
+		(r"/api/v2/clients/.*", deltaApi.handler)
 	])
 
 
