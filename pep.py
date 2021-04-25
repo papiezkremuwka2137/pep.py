@@ -61,7 +61,7 @@ def make_app():
 		(r"/api/v1/verifiedStatus", apiVerifiedStatusHandler.handler),
 		(r"/api/v1/fokabotMessage", apiFokabotMessageHandler.handler),
 		(r"/api/yes/userstats", apiUserStatusHandler.handler),
-		(r"/api/v2/clients/.*", deltaApi.handler)
+		(r"/api/v2/clients/(.*)", deltaApi.handler)
 	])
 
 
