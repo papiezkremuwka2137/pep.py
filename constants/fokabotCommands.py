@@ -610,6 +610,10 @@ def tillerinoNp(fro, chan, message):
 
 		# Reject regex. Return to monkey.
 		beatmapID = beatmapURL.split("/")[-1]
+		
+		# Sneaky peppy!! Changing URL!
+		if "#" in beatmapID:
+			_, beatmapID = beatmapID.split("#")
 
 		# Update latest tillerino song for current token
 		token = glob.tokens.getTokenFromUsername(fro)
