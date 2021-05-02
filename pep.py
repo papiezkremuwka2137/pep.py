@@ -47,7 +47,7 @@ from pubSubHandlers import updateStatsHandler
 
 # WE GOT DELTA.
 try:
-	from realistik import delta
+	from realistik import delta as deltaApi
 except ImportError:
 	log.info("Not using Realistik Delta implementation.")
 	from handlers import apiGetTheFuckOuttaHere as deltaApi
@@ -63,7 +63,7 @@ def make_app():
 		(r"/api/v1/fokabotMessage", apiFokabotMessageHandler.handler),
 		(r"/api/yes/userstats", apiUserStatusHandler.handler),
 		(r"/api/v2/clients/(.*)", deltaApi.handler),
-		(r"/infos", apiAerisThing)
+		(r"/infos", apiAerisThing.handler)
 	])
 
 
