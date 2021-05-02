@@ -15,7 +15,7 @@ class handler(requestsManager.asyncRequestHandler):
         resp_dict = {
             "version": 0,
             "motd": f"RealistikOsu\n" + random.choice(glob.banchoConf.config['Quotes']),
-            "onlineUsers": len(glob.tokenList),
+            "onlineUsers": len(glob.tokenList.tokens),
             "icon": "https://ussr.pl/static/image/newlogo2.png",
             "botID": 999
         }
