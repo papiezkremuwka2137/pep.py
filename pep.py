@@ -28,6 +28,7 @@ from handlers import apiVerifiedStatusHandler
 from handlers import ciTriggerHandler
 from handlers import mainHandler
 from handlers import apiUserStatusHandler
+from handlers import apiAerisThing
 from helpers import configHelper
 from helpers import consoleHelper
 from helpers import systemHelper as system
@@ -61,7 +62,8 @@ def make_app():
 		(r"/api/v1/verifiedStatus", apiVerifiedStatusHandler.handler),
 		(r"/api/v1/fokabotMessage", apiFokabotMessageHandler.handler),
 		(r"/api/yes/userstats", apiUserStatusHandler.handler),
-		(r"/api/v2/clients/(.*)", deltaApi.handler)
+		(r"/api/v2/clients/(.*)", deltaApi.handler),
+		(r"/infos", apiAerisThing)
 	])
 
 
