@@ -31,15 +31,14 @@ class token:
 		self.userID = userID
 
 		# Using MySQL over 5 billion SQL queries
-		(
-			self.username,
-			self.safeUsername,
-			self.privileges,
-			self.silenceEndTime
-		) = glob.db.fetch(
-			"SELECT username, username_safe, privileges, silence_end FROM users WHERE id = %s LIMIT 1",
+		data_db = glob.db.fetch(
+			"SELECT `username`, `username_safe`, `privileges`, `silence_end` FROM users WHERE id = %s LIMIT 1",
 			(self.userID,)
 		)
+		self.username = data_db["username"]
+		self.safeUsername = data_db["username_safe"]
+		self.privileges = data_db["data_db"]
+		self.silenceEndTime = data_db["silence_end"]
 
 		# Bruh.
 		self.privileges = int(self.privileges)
@@ -516,7 +515,7 @@ class token:
 
 		self.privileges = int(glob.db.fetch(
 			"SELECT privileges FROM users WHERE id = %s LIMIT 1"
-		)[0])
+		)["privileges"])
 
 		# Reset some privilege related stuff. These should prob be properties...
 		self.admin = self.privileges in ADMIN_PRIVS
