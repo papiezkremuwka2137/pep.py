@@ -6,39 +6,39 @@ from constants import packetIDs
 from constants import userRanks
 from helpers import packetHelper
 from objects import glob
+from constants.rosuprivs import (
+	OWNER,
+	BAT,
+	MODERATOR,
+	DEVELOPER
+)
 
 """ Login errors packets """
 def loginFailed():
-	return packetHelper.buildPacket(packetIDs.server_userID, [[-1, dataTypes.SINT32]])
+	#return packetHelper.buildPacket(packetIDs.server_userID, [[-1, dataTypes.SINT32]])
+	return b'\x05\x00\x00\x04\x00\x00\x00\xff\xff\xff\xff'
 
 def forceUpdate():
-	return packetHelper.buildPacket(packetIDs.server_userID, [[-2, dataTypes.SINT32]])
+	#return packetHelper.buildPacket(packetIDs.server_userID, [[-2, dataTypes.SINT32]])
+	return b'\x05\x00\x00\x04\x00\x00\x00\xfe\xff\xff\xff'
 
 def loginBanned():
-	packets = packetHelper.buildPacket(packetIDs.server_userID, [[-1, dataTypes.SINT32]])
-	packets += notification("You are banned! You can appeal 3 months after your ban on Discord (invite available at ussr.pl)")
-	return packets
+	return b'\x05\x00\x00\x04\x00\x00\x00\xff\xff\xff\xff\x18\x00\x00@\x00\x00\x00\x0b>You are banned! Please contact us on Discord (link at ussr.pl)'
 
 def loginLocked():
-	packets = packetHelper.buildPacket(packetIDs.server_userID, [[-1, dataTypes.SINT32]])
-	packets += notification("Well... Your account is locked but everything is still safe.")
-	return packets
+	return b'\x05\x00\x00\x04\x00\x00\x00\xff\xff\xff\xff\x18\x00\x00A\x00\x00\x00\x0b?Well... Your account is locked but all your data is still safe.'
 
 def loginError():
-	return packetHelper.buildPacket(packetIDs.server_userID, [[-5, dataTypes.SINT32]])
+	return b'\x05\x00\x00\x04\x00\x00\x00\xfb\xff\xff\xff'
 
 def loginCheats():
-	message = "BOT Chet spotted!"
-	packets = packetHelper.buildPacket(packetIDs.server_userID, [[-1, dataTypes.SINT32]])
-	packets += packetHelper.buildPacket(0x69, [[message, dataTypes.STRING]])
-	packets += notification("We don't like cheaters here at RealistikOsu! Consider yourself restricted.")
-	return packets
+	return b"\x18\x00\x00L\x00\x00\x00\x0bJWe don't like cheaters here at RealistikOsu! Consider yourself restricted.\x05\x00\x00\x04\x00\x00\x00\xff\xff\xff\xff"
 
 def needSupporter():
-	return packetHelper.buildPacket(packetIDs.server_userID, [[-6, dataTypes.SINT32]])
+	return b'\x05\x00\x00\x04\x00\x00\x00\xfa\xff\xff\xff'
 
 def needVerification():
-	return packetHelper.buildPacket(packetIDs.server_userID, [[-8, dataTypes.SINT32]])
+	return b'\x05\x00\x00\x04\x00\x00\x00\xf8\xff\xff\xff'
 
 
 """ Login packets """
@@ -49,7 +49,9 @@ def silenceEndTime(seconds):
 	return packetHelper.buildPacket(packetIDs.server_silenceEnd, [[seconds, dataTypes.UINT32]])
 
 def protocolVersion(version = 19):
-	return packetHelper.buildPacket(packetIDs.server_protocolVersion, [[version, dataTypes.UINT32]])
+	# This is always 19 so we might as well
+	#return packetHelper.buildPacket(packetIDs.server_protocolVersion, [[version, dataTypes.UINT32]])
+	return b'K\x00\x00\x04\x00\x00\x00\x13\x00\x00\x00'
 
 def mainMenuIcon(icon):
 	return packetHelper.buildPacket(packetIDs.server_mainMenuIcon, [[icon, dataTypes.STRING]])
@@ -94,7 +96,7 @@ def userPanel(userID, force = False):
 	username = userToken.username
 	timezone = 24+userToken.timeOffset
 	country = userToken.country
-	gameRank = userToken.gameRank
+	gameRank = userToken.gameRank 
 	latitude = userToken.getLatitude()
 	longitude = userToken.getLongitude()
 
@@ -103,13 +105,13 @@ def userPanel(userID, force = False):
 	userRank = 0
 	if username == glob.BOT_NAME:
 		userRank |= userRanks.MOD
-	elif userUtils.isInPrivilegeGroup(userID, "owner"):
+	elif userToken.privileges == OWNER:
 		userRank |= userRanks.PEPPY
-	elif userUtils.isInPrivilegeGroup(userID, "developer"):
+	elif userToken.privileges == DEVELOPER:
 		userRank |= userRanks.ADMIN
-	elif userUtils.isInPrivilegeGroup(userID, "chat mod"):
+	elif userToken.privileges == MODERATOR:
 		userRank |= userRanks.MOD
-	elif (userToken.privileges & privileges.USER_DONOR) > 0:
+	elif userToken.privileges & privileges.USER_DONOR:
 		userRank |= userRanks.SUPPORTER
 	else:
 		userRank |= userRanks.NORMAL
@@ -160,7 +162,7 @@ def sendMessage(fro, to, message):
 		[userUtils.getID(fro), dataTypes.SINT32]
 	])
 
-def channelJoinSuccess(userID, chan):
+def channelJoinSuccess(chan):
 	return packetHelper.buildPacket(packetIDs.server_channelJoinSuccess, [[chan, dataTypes.STRING]])
 
 def channelInfo(chan):
@@ -174,7 +176,7 @@ def channelInfo(chan):
 	])
 
 def channelInfoEnd():
-	return packetHelper.buildPacket(packetIDs.server_channelInfoEnd, [[0, dataTypes.UINT32]])
+	return b'Y\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00'
 
 def channelKicked(chan):
 	return packetHelper.buildPacket(packetIDs.server_channelKicked, [[chan, dataTypes.STRING]])
@@ -247,34 +249,34 @@ def matchJoinSuccess(matchID):
 	return data
 
 def matchJoinFail():
-	return packetHelper.buildPacket(packetIDs.server_matchJoinFail)
+	return b'%\x00\x00\x00\x00\x00\x00'
 
 def changeMatchPassword(newPassword):
 	return packetHelper.buildPacket(packetIDs.server_matchChangePassword, [[newPassword, dataTypes.STRING]])
 
 def allPlayersLoaded():
-	return packetHelper.buildPacket(packetIDs.server_matchAllPlayersLoaded)
+	return b'5\x00\x00\x00\x00\x00\x00'
 
 def playerSkipped(userID):
 	return packetHelper.buildPacket(packetIDs.server_matchPlayerSkipped, [[userID, dataTypes.SINT32]])
 
 def allPlayersSkipped():
-	return packetHelper.buildPacket(packetIDs.server_matchSkip)
+	return b'=\x00\x00\x00\x00\x00\x00'
 
 def matchFrames(slotID, data):
 	return packetHelper.buildPacket(packetIDs.server_matchScoreUpdate, [[data[7:11], dataTypes.BBYTES], [slotID, dataTypes.BYTE], [data[12:], dataTypes.BBYTES]])
 
 def matchComplete():
-	return packetHelper.buildPacket(packetIDs.server_matchComplete)
+	return b':\x00\x00\x00\x00\x00\x00'
 
 def playerFailed(slotID):
 	return packetHelper.buildPacket(packetIDs.server_matchPlayerFailed, [[slotID, dataTypes.UINT32]])
 
 def matchTransferHost():
-	return packetHelper.buildPacket(packetIDs.server_matchTransferHost)
+	return b'2\x00\x00\x00\x00\x00\x00'
 
 def matchAbort():
-	return packetHelper.buildPacket(packetIDs.server_matchAbort)
+	return b'j\x00\x00\x00\x00\x00\x00'
 
 def switchServer(address):
 	return packetHelper.buildPacket(packetIDs.server_switchServer, [[address, dataTypes.STRING]])
@@ -290,4 +292,5 @@ def rtx(message):
 	return packetHelper.buildPacket(0x69, [[message, dataTypes.STRING]])
 
 def crash():
-	return packetHelper.buildPacket(packetIDs.server_supporterGMT, [[128, dataTypes.UINT32]]) + packetHelper.buildPacket(packetIDs.server_ping)
+	#return buildPacket(packetIDs.server_supporterGMT, [[128, dataTypes.UINT32]]) + buildPacket(packetIDs.server_ping)
+	return b'G\x00\x00\x04\x00\x00\x00\x80\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00'

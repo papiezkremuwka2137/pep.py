@@ -2,15 +2,17 @@ import threading
 import time
 import uuid
 
-from common.constants import gameModes, actions
+from common.constants import gameModes, actions, privileges
 from logger import log
 from common.ripple import userUtils
 from constants import exceptions
 from constants import serverPackets
+from constants.rosuprivs import ADMIN_PRIVS
 from events import logoutEvent
 from helpers import chatHelper as chat
 from objects import glob
 
+MAX_BYTES = 10 * 10 ** 6
 
 class token:
 	def __init__(self, userID, token_ = None, ip ="", irc = False, timeOffset = 0, tournament = False):
@@ -27,15 +29,19 @@ class token:
 		"""
 		# Set stuff
 		self.userID = userID
-		self.username = userUtils.getUsername(self.userID)
-		self.safeUsername = userUtils.getSafeUsername(self.userID)
-		self.privileges = userUtils.getPrivileges(self.userID)
-		self.admin = userUtils.isInPrivilegeGroup(self.userID, "developer")\
-					 or userUtils.isInPrivilegeGroup(self.userID, "community manager")\
-					 or userUtils.isInPrivilegeGroup(self.userID, "chat moderators")
+
+		# Using MySQL over 5 billion SQL queries
+		(
+			self.username,
+			self.safeUsername,
+			self.privileges
+		) = glob.db.fetch(
+			"SELECT username, username_safe, privileges FROM users WHERE id = %s LIMIT 1",
+			(self.userID,)
+		)
+
 		self.irc = irc
 		self.kicked = False
-		self.restricted = userUtils.isRestricted(self.userID)
 		self.loginTime = int(time.time())
 		self.pingTime = self.loginTime
 		self.timeOffset = timeOffset
@@ -50,11 +56,10 @@ class token:
 		self.spectating = None
 		self.spectatingUserID = 0	# we need this in case we the host gets DCed
 
-		self.location = [0,0]
 		self.joinedChannels = []
 		self.ip = ip
 		self.country = 0
-		self.location = [0,0]
+		self.location = [0.0, 0.0]
 		self.awayMessage = ""
 		self.sentAway = []
 		self.matchID = -1
@@ -107,6 +112,25 @@ class token:
 
 		# Join main stream
 		self.joinStream("main")
+	
+	@property
+	def restricted(self) -> bool:
+		"""Bool corresponding to the user's restricted status."""
+
+		return not self.privileges & privileges.USER_PUBLIC
+	
+	@property
+	def admin(self) -> bool:
+		"""Bool corresponding to whether the user is important staff or smth."""
+
+		# Hardcode these as we mean and im lazy
+		return self.privileges in ADMIN_PRIVS
+	
+	@property
+	def banned(self) -> bool:
+		"""Bool corresponding to whether the user is banned from the server."""
+
+		return not self.privileges & privileges.USER_NORMAL
 
 	def enqueue(self, bytes_):
 		"""
@@ -123,7 +147,7 @@ class token:
 				return
 
 			# Avoid memory leaks
-			if len(bytes_) < 10 * 10 ** 6:
+			if len(bytes_) < MAX_BYTES:
 				self.queue += bytes_
 			else:
 				log.warning("{}'s packets buffer is above 10M!! Lost some data!".format(self.username))
@@ -481,6 +505,17 @@ class token:
 			self.accuracy = stats["accuracy"]/100
 			self.playcount = stats["playcount"]
 			self.totalScore = stats["totalScore"]
+		
+	def refresh_privs(self) -> None:
+		"""Fetches the user's privilege group directly from the db and sets
+		it in the obj."""
+
+		self.privileges = glob.db.fetch(
+			"SELECT privileges FROM users WHERE id = %s LIMIT 1"
+		)[0]
+
+		# Reset some privilege related stuff. These should prob be properties...
+		self.admin = self.privileges in ADMIN_PRIVS
 
 	def checkRestricted(self):
 		"""
@@ -489,7 +524,8 @@ class token:
 		:return:
 		"""
 		oldRestricted = self.restricted
-		self.restricted = userUtils.isRestricted(self.userID)
+		self.refresh_privs()
+
 		if self.restricted:
 			self.setRestricted()
 		elif not self.restricted and oldRestricted != self.restricted:
@@ -501,6 +537,9 @@ class token:
 
 		:return:
 		"""
+
+		# Ok so the only place where this is used is right after a priv refresh
+		# from db so...
 		if userUtils.isBanned(self.userID):
 			self.enqueue(serverPackets.loginBanned())
 			logoutEvent.handle(self, deleteToken=False)

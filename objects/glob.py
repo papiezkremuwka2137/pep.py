@@ -18,8 +18,7 @@ except:
 	VERSION = "Unknown"
 
 DATADOG_PREFIX = "peppy"
-BOT_NAME = "AC"
-# YOU CAN CHANGE TO YOUR BOT NAME! #
+BOT_NAME = "RealistikBot"
 application = None
 db = None
 redis = None
@@ -35,7 +34,6 @@ dog = datadogClient.datadogClient()
 verifiedCache = {}
 chatFilters = None
 pool = None
-ircServer = None
 busyThreads = 0
 
 debug = False

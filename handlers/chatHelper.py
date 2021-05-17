@@ -41,10 +41,6 @@ def joinChannel(userID = 0, channel = "", token = None, toIRC = True, force=Fals
 		# Add the channel to our joined channel
 		token.joinChannel(channelObject)
 
-		# Send channel joined (IRC)
-		if glob.irc and not toIRC:
-			glob.ircServer.banchoJoinChannel(token.username, channel)
-
 		# Console output
 		log.info("{} joined channel {}".format(token.username, channel))
 
@@ -130,10 +126,6 @@ def partChannel(userID = 0, channel = "", token = None, toIRC = True, kick = Fal
 		# NOTE: Maybe always needed, will check later
 		if kick:
 			token.enqueue(serverPackets.channelKicked(channelClient))
-
-		# IRC part
-		if glob.irc and toIRC:
-			glob.ircServer.banchoPartChannel(token.username, channel)
 
 		# Console output
 		log.info("{} parted channel {} ({})".format(token.username, channel, channelClient))
@@ -296,14 +288,6 @@ def sendMessage(fro = "", to = "", message = "", token = None, toIRC = True):
 			# Everything seems fine, send packet
 			recipientToken.enqueue(packet)
 
-		# Send the message to IRC
-		if glob.irc and toIRC:
-			messageSplitInLines = message.encode("latin-1").decode("utf-8").split("\n")
-			for line in messageSplitInLines:
-				if line == messageSplitInLines[:1] and line == "":
-					continue
-				glob.ircServer.banchoMessage(fro, to, line)
-
 		# Spam protection (ignore your bot)
 		if token.userID > 999:
 			token.spamProtection()
@@ -375,81 +359,3 @@ def fixUsernameForIRC(username):
 	:return: converted username
 	"""
 	return username.replace(" ", "_")
-
-def IRCConnect(username):
-	"""
-	Handle IRC login bancho-side.
-	Add token and broadcast login packet.
-
-	:param username: username
-	:return:
-	"""
-	userID = userUtils.getID(username)
-	if not userID:
-		log.warning("{} doesn't exist".format(username))
-		return
-	glob.tokens.deleteOldTokens(userID)
-	glob.tokens.addToken(userID, irc=True)
-	glob.streams.broadcast("main", serverPackets.userPanel(userID))
-	log.info("{} logged in from IRC".format(username))
-
-def IRCDisconnect(username):
-	"""
-	Handle IRC logout bancho-side.
-	Remove token and broadcast logout packet.
-
-	:param username: username
-	:return:
-	"""
-	token = glob.tokens.getTokenFromUsername(username)
-	if token is None:
-		log.warning("{} doesn't exist".format(username))
-		return
-	logoutEvent.handle(token)
-	log.info("{} disconnected from IRC".format(username))
-
-def IRCJoinChannel(username, channel):
-	"""
-	Handle IRC channel join bancho-side.
-
-	:param username: username
-	:param channel: channel name
-	:return: IRC return code
-	"""
-	userID = userUtils.getID(username)
-	if not userID:
-		log.warning("{} doesn't exist".format(username))
-		return
-	# NOTE: This should have also `toIRC` = False` tho,
-	# since we send JOIN message later on ircserver.py.
-	# Will test this later
-	return joinChannel(userID, channel)
-
-def IRCPartChannel(username, channel):
-	"""
-	Handle IRC channel part bancho-side.
-
-	:param username: username
-	:param channel: channel name
-	:return: IRC return code
-	"""
-	userID = userUtils.getID(username)
-	if not userID:
-		log.warning("{} doesn't exist".format(username))
-		return
-	return partChannel(userID, channel)
-
-def IRCAway(username, message):
-	"""
-	Handle IRC away command bancho-side.
-
-	:param username:
-	:param message: away message
-	:return: IRC return code
-	"""
-	userID = userUtils.getID(username)
-	if not userID:
-		log.warning("{} doesn't exist".format(username))
-		return
-	glob.tokens.getTokenFromUserID(userID).awayMessage = message
-	return 305 if message == "" else 306

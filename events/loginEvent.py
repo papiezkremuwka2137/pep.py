@@ -125,7 +125,6 @@ def handle(tornadoRequest):
 
 		if user_restricted:
 			responseToken.setRestricted()
-			responseToken.resetRestricted()
 		#responseToken.checkRestricted()
 
 		# Check if frozen

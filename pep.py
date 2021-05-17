@@ -32,7 +32,6 @@ from handlers import apiAerisThing
 from helpers import configHelper
 from helpers import consoleHelper
 from helpers import systemHelper as system
-from irc import ircserver
 from objects import banchoConfig
 from objects import chatFilters
 from objects import fokabot
@@ -44,6 +43,7 @@ from pubSubHandlers import banHandler
 from pubSubHandlers import notificationHandler
 from pubSubHandlers import updateSilenceHandler
 from pubSubHandlers import updateStatsHandler
+from pubSubHandlers import refreshPrivsHandler
 
 # WE GOT DELTA.
 try:
@@ -271,7 +271,6 @@ if __name__ == "__main__":
 						#datadogClient.periodicCheck("ram_file_locks", lambda: generalUtils.getTotalSize(glob.fLocks)),
 						#datadogClient.periodicCheck("ram_datadog", lambda: generalUtils.getTotalSize(glob.datadogClient)),
 						#datadogClient.periodicCheck("ram_verified_cache", lambda: generalUtils.getTotalSize(glob.verifiedCache)),
-						#datadogClient.periodicCheck("ram_irc", lambda: generalUtils.getTotalSize(glob.ircServer)),
 						#datadogClient.periodicCheck("ram_tornado", lambda: generalUtils.getTotalSize(glob.application)),
 						#datadogClient.periodicCheck("ram_db", lambda: generalUtils.getTotalSize(glob.db)),
 					])
@@ -279,21 +278,6 @@ if __name__ == "__main__":
 				log.warning("Datadog stats tracking is disabled!")
 		except:
 			log.warning("Error while starting Datadog client! Please check your config.ini and run the server again")
-
-		# IRC start message and console output
-		glob.irc = generalUtils.stringToBool(glob.conf.config["irc"]["enable"])
-		if glob.irc:
-			# IRC port
-			ircPort = 0
-			try:
-				ircPort = int(glob.conf.config["irc"]["port"])
-			except ValueError:
-				log.error("Invalid IRC port! Please check your config.ini and run the server again")
-			log.logMessage("IRC server started!", discord="bunker", of="info.txt", stdout=False)
-			log.info("IRC server listening on 127.0.0.1:{}...".format(ircPort))
-			threading.Thread(target=lambda: ircserver.main(port=ircPort)).start()
-		else:
-			log.warning("IRC server is disabled!", bcolors.YELLOW)
 
 		# Server port
 		serverPort = 0
@@ -304,7 +288,7 @@ if __name__ == "__main__":
 
 		# Server start message and console output
 		log.logMessage("Server started!", discord="bunker", of="info.txt", stdout=False)
-		log.info("Tornado listening for HTTP(s) clients on 127.0.0.1:{}...".format(serverPort))
+		log.info(f"Tornado listening for HTTP(s) clients on 127.0.0.1:{serverPort}...")
 
 		# Connect to pubsub channels
 		pubSub.listener(glob.redis, {
@@ -316,6 +300,7 @@ if __name__ == "__main__":
 			"peppy:ban": banHandler.handler(),
 			"peppy:notification": notificationHandler.handler(),
 			"peppy:set_main_menu_icon": setMainMenuIconHandler.handler(),
+			"peppy:refrest_privs": refreshPrivsHandler.handler()
 		}).start()
 
 		# Start tornado

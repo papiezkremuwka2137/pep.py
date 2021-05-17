@@ -47,10 +47,7 @@ def handle(userToken, packetData):
 
 		# Update match settings
 		match.inProgress = packetData["inProgress"]
-		if packetData["matchPassword"] != "":
-			match.matchPassword = generalUtils.stringMd5(packetData["matchPassword"])
-		else:
-			match.matchPassword = ""
+		match.matchPassword = packetData["matchPassword"]
 		match.beatmapName = packetData["beatmapName"]
 		match.beatmapID = packetData["beatmapID"]
 		match.hostUserID = packetData["hostUserID"]

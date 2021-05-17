@@ -34,10 +34,6 @@ def handle(userToken, _=None, deleteToken=True):
 		# Enqueue our disconnection to everyone else
 		glob.streams.broadcast("main", serverPackets.userLogout(userID))
 
-		# Disconnect from IRC if needed
-		if userToken.irc and glob.irc:
-			glob.ircServer.forceDisconnection(userToken.username)
-
 		# Delete token
 		if deleteToken:
 			glob.tokens.deleteToken(requestToken)

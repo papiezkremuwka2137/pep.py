@@ -13,6 +13,7 @@ class handler(generalPubSubHandler.generalPubSubHandler):
 			return
 		targetToken = glob.tokens.getTokenFromUserID(userID)
 		if targetToken is not None:
-			targetToken.privileges = userUtils.getPrivileges(userID)
+			#targetToken.privileges = userUtils.getPrivileges(userID)
+			targetToken.refresh_privs()
 			targetToken.checkBanned()
 			targetToken.checkRestricted()

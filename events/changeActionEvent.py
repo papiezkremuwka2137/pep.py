@@ -47,7 +47,7 @@ if userToken.matchID != -1 and userToken.actionID != actions.MULTIPLAYING and us
 	userToken.beatmapID = packetData["beatmapID"]
 
 	
-	if bool(packetData["actionMods"] & 128) == True:
+	if packetData["actionMods"] & 128:
 		userToken.relaxing = True
 		userToken.autopiloting = False
 		if userToken.actionID in (0, 1, 14):
@@ -62,7 +62,7 @@ if userToken.matchID != -1 and userToken.actionID != actions.MULTIPLAYING and us
 			userToken.enqueue(serverPackets.notification("You're playing with Relax, we've changed the leaderboard to Relax."))
 		"""
 	#autopiloten
-	elif bool(packetData["actionMods"] & 8192) == True:
+	elif packetData["actionMods"] & 8192:
 		userToken.autopiloting = True
 		userToken.relaxing = False
 		if userToken.actionID in (0, 1, 14):
@@ -84,18 +84,14 @@ if userToken.matchID != -1 and userToken.actionID != actions.MULTIPLAYING and us
 		"""
 	#glob.db.execute("UPDATE users_stats SET current_status = %s WHERE id = %s", [UserText, userID])
 	# Enqueue our new user panel and stats to us and our spectators
-	recipients = [userToken]
-	if len(userToken.spectators) > 0:
+	if userToken.spectators:
 		for i in userToken.spectators:
 			if i in glob.tokens.tokens:
-				recipients.append(glob.tokens.tokens[i])
-
-	for i in recipients:
-		if i is not None:
-			# Force our own packet
-			force = True if i == userToken else False
-			i.enqueue(serverPackets.userPanel(userID, force))
-			i.enqueue(serverPackets.userStats(userID, force))
+				force = glob.tokens.tokens[i] == userToken
+				glob.tokens.tokens[i].enqueue(
+					serverPackets.userPanel(userID, force)
+					+ serverPackets.userStats(userID, force)
+				)
 
 	# Console output
 	log.info("{} changed action: {} [{}][{}][{}]".format(username, str(userToken.actionID), userToken.actionText, userToken.actionMd5, userToken.beatmapID))
