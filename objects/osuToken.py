@@ -37,7 +37,7 @@ class token:
 		)
 		self.username = data_db["username"]
 		self.safeUsername = data_db["username_safe"]
-		self.privileges = data_db["data_db"]
+		self.privileges = data_db["privileges"]
 		self.silenceEndTime = data_db["silence_end"]
 
 		# Bruh.
