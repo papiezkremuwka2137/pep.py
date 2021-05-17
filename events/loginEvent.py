@@ -157,14 +157,9 @@ def handle(tornadoRequest):
 				expireIn = "{} days".format(expireDays) if expireDays > 1 else "less than 24 hours"
 				responseToken.enqueue(serverPackets.notification("Your supporter status expires in {}! Following this, you will lose your supporter privileges (such as the further profile customisation options, name changes or profile wipes) and will not be able to access supporter features. If you wish to keep supporting RealistikOsu and you don't want to lose your donor privileges, you can donate again by clicking on 'Donate' on our website.".format(expireIn)))
 
-		# Set silence end UNIX time in token
-		responseToken.silenceEndTime = userUtils.getSilenceEnd(userID)
-
 		# Get only silence remaining seconds
 		silenceSeconds = responseToken.getSilenceSecondsLeft()
 		# Get supporter/GMT
-		
-
 		userGMT = False
 		if not user_restricted:
 			userSupporter = True
@@ -173,7 +168,7 @@ def handle(tornadoRequest):
 		userTournament = False
 		if responseToken.admin:
 			userGMT = True
-		if responseToken.privileges & privileges.USER_TOURNAMENT_STAFF > 0:
+		if responseToken.privileges & privileges.USER_TOURNAMENT_STAFF:
 			userTournament = True
 
 		# Server restarting check
@@ -182,12 +177,6 @@ def handle(tornadoRequest):
 
 		# Send login notification before maintenance message
 		#if glob.banchoConf.config["loginNotification"] != "":
-
-		#creating notification
-		OnlineUsers = int(glob.redis.get("ripple:online_users").decode("utf-8"))
-		Notif = f"""- Online Users: {OnlineUsers}
-		- {random.choice(glob.banchoConf.config['Quotes'])}"""
-		responseToken.enqueue(serverPackets.notification(Notif))
 
 		# Maintenance check
 		if glob.banchoConf.config["banchoMaintenance"]:
@@ -250,15 +239,16 @@ def handle(tornadoRequest):
 					raise exceptions.loginCheatClientsException()
 
 		# Send all needed login packets
-		responseToken.enqueue(serverPackets.silenceEndTime(silenceSeconds))
-		responseToken.enqueue(serverPackets.userID(userID))
-		responseToken.enqueue(serverPackets.protocolVersion())
-		responseToken.enqueue(serverPackets.userSupporterGMT(userSupporter, userGMT, userTournament)) # Greenwich Mean Time
-		responseToken.enqueue(serverPackets.userPanel(userID, True))
-		responseToken.enqueue(serverPackets.userStats(userID, True))
+		responseToken.enqueue(
+			serverPackets.silenceEndTime(silenceSeconds) +
+			serverPackets.userID(userID) +
+			serverPackets.protocolVersion() +
+			serverPackets.userSupporterGMT(userSupporter, userGMT, userTournament) +
+			serverPackets.userPanel(userID, True) +
+			serverPackets.userStats(userID, True) +
+			serverPackets.channelInfoEnd()
+		)
 
-		# Channel info end (before starting!?! wtf bancho?)
-		responseToken.enqueue(serverPackets.channelInfoEnd())
 		# Default opened channels
 		# TODO: Configurable default channels
 		chat.joinChannel(token=responseToken, channel="#osu")
@@ -311,6 +301,16 @@ def handle(tornadoRequest):
 		# Send to everyone our userpanel if we are not restricted or tournament
 		if not responseToken.restricted:
 			glob.streams.broadcast("main", serverPackets.userPanel(userID))
+		
+		#creating notification
+		t.end()
+		t_str = t.time_str()
+		online_users = int(glob.redis.get("ripple:online_users").decode("utf-8")) # TODO: Use the len thing. Too lazy rn
+		notif = f"""- Online Users: {online_users}\n- {random.choice(glob.banchoConf.config['Quotes'])}"""
+		if responseToken.admin: notif += f"\nAuthentication attempt took {t_str}!"
+		responseToken.enqueue(serverPackets.notification(notif))
+		
+		log.info(f"Authentication attempt took {t_str}!")
 
 		# Set reponse data to right value and reset our queue
 		responseData = responseToken.queue
@@ -323,7 +323,7 @@ def handle(tornadoRequest):
 		# Invalid POST data
 		# (we don't use enqueue because we don't have a token since login has failed)
 		responseData += serverPackets.loginFailed()
-		responseData += serverPackets.notification("I see what you're doing...")
+		responseData += serverPackets.notification("I have eyes y'know?")
 	except exceptions.loginBannedException:
 		# Login banned error packet
 		responseData += serverPackets.loginBanned()
@@ -351,16 +351,13 @@ def handle(tornadoRequest):
 		# Using oldoldold client, we don't have client data. Force update.
 		# (we don't use enqueue because we don't have a token since login has failed)
 		responseData += serverPackets.forceUpdate()
-		responseData += serverPackets.notification("What... Is... That... Client...")
+		responseData += serverPackets.notification("What...")
 	except:
 		log.error("Unknown error!\n```\n{}\n{}```".format(sys.exc_info(), traceback.format_exc()))
 	finally:
 		# Console and discord log
 		if len(loginData) < 3:
 			log.info("Invalid bancho login request from **{}** (insufficient POST data)".format(requestIP), "bunker")
-		
-		t.end()
-		log.info(f"Authentication attempt took {t.time_str()}!")
 
 		# Return token string and data
 		return responseTokenString, responseData

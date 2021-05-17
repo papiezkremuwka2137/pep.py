@@ -24,7 +24,7 @@ This fork of pep.py has been developed specifically to suit the need of Realisti
 
 ## Requirements
 To run pep.py, there is an list of requirements to ensure the server runs at all.
-- Python >3.6
+- Python >=3.6
 - RealistikOsu MySQL Database
 - Cython + GCC
 - Linux (preferably Ubuntu 18.04)

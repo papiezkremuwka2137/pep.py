@@ -34,9 +34,10 @@ class token:
 		(
 			self.username,
 			self.safeUsername,
-			self.privileges
+			self.privileges,
+			self.silenceEndTime
 		) = glob.db.fetch(
-			"SELECT username, username_safe, privileges FROM users WHERE id = %s LIMIT 1",
+			"SELECT username, username_safe, privileges, silence_end FROM users WHERE id = %s LIMIT 1",
 			(self.userID,)
 		)
 
@@ -177,7 +178,7 @@ class token:
 			raise exceptions.channelNoPermissionsException()
 		self.joinedChannels.append(channelObject.name)
 		self.joinStream("chat/{}".format(channelObject.name))
-		self.enqueue(serverPackets.channelJoinSuccess(self.userID, channelObject.clientName))
+		self.enqueue(serverPackets.channelJoinSuccess(channelObject.clientName))
 
 	def partChannel(self, channelObject):
 		"""
