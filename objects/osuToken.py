@@ -41,6 +41,9 @@ class token:
 			(self.userID,)
 		)
 
+		# Bruh.
+		self.privileges = int(self.privileges)
+
 		self.irc = irc
 		self.kicked = False
 		self.loginTime = int(time.time())
@@ -511,9 +514,9 @@ class token:
 		"""Fetches the user's privilege group directly from the db and sets
 		it in the obj."""
 
-		self.privileges = glob.db.fetch(
+		self.privileges = int(glob.db.fetch(
 			"SELECT privileges FROM users WHERE id = %s LIMIT 1"
-		)[0]
+		)[0])
 
 		# Reset some privilege related stuff. These should prob be properties...
 		self.admin = self.privileges in ADMIN_PRIVS
