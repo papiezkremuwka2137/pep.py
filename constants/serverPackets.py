@@ -72,10 +72,9 @@ def friendList(userID):
 
 def onlineUsers():
 	userIDs = []
-	users = glob.tokens.tokens
 
 	# Create list with all connected (and not restricted) users
-	for _, value in users.items():
+	for _, value in glob.tokens.tokens.items():
 		if not value.restricted:
 			userIDs.append(value.userID)
 
@@ -89,8 +88,7 @@ def userLogout(userID):
 def userPanel(userID, force = False):
 	# Connected and restricted check
 	userToken = glob.tokens.getTokenFromUserID(userID)
-	if userToken is None or ((userToken.restricted) and not force):
-		return bytes()
+	if userToken is None: return bytes()
 
 	# Get user data
 	username = userToken.username
@@ -132,8 +130,7 @@ def userPanel(userID, force = False):
 def userStats(userID, force = False):
 	# Get userID's token from tokens list
 	userToken = glob.tokens.getTokenFromUserID(userID)
-	if userToken is None or ((userToken.restricted or userToken.irc or userToken.tournament) and not force):
-		return bytes()
+	if userToken is None: return bytes()
 
 	return packetHelper.buildPacket(packetIDs.server_userStats,
 	[

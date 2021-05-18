@@ -240,7 +240,7 @@ def handle(tornadoRequest):
 
 		# Send all needed login packets
 		responseToken.enqueue(
-			serverPackets.silenceEndTime(silenceSeconds) +
+			bytearray(serverPackets.silenceEndTime(silenceSeconds)) + # Fast addition
 			serverPackets.userID(userID) +
 			serverPackets.protocolVersion() +
 			serverPackets.userSupporterGMT(userSupporter, userGMT, userTournament) +
@@ -313,8 +313,7 @@ def handle(tornadoRequest):
 		log.info(f"Authentication attempt took {t_str}!")
 
 		# Set reponse data to right value and reset our queue
-		responseData = responseToken.queue
-		responseToken.resetQueue()
+		responseData = responseToken.fetch_queue()
 	except exceptions.loginFailedException:
 		# Login failed error packet
 		# (we don't use enqueue because we don't have a token since login has failed)
@@ -337,7 +336,7 @@ def handle(tornadoRequest):
 		# Bancho is in maintenance mode
 		responseData = bytes()
 		if responseToken is not None:
-			responseData = responseToken.queue
+			responseData = responseToken.fetch_queue()
 		responseData += serverPackets.notification("Our bancho server is in maintenance mode. Please try to login again later.")
 		responseData += serverPackets.loginFailed()
 	except exceptions.banchoRestartingException:

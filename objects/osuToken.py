@@ -68,7 +68,7 @@ class token:
 		self.matchID = -1
 		self.tillerino = [0,0,-1.0]	# beatmap, mods, acc
 		self.silenceEndTime = 0
-		self.queue = bytes()
+		self.queue = bytearray()
 
 		# Spam protection
 		self.spamRate = 0
@@ -162,9 +162,17 @@ class token:
 		"""Resets the queue. Call when enqueued packets have been sent"""
 		try:
 			self._bufferLock.acquire()
-			self.queue = bytes()
+			self.queue = bytearray()
 		finally:
 			self._bufferLock.release()
+	
+	def fetch_queue(self) -> bytes:
+		"""Manages getting all of the queued packets for the users and clearing
+		the queue, alongside managing the type."""
+
+		b = bytes(self.queue) # Tornado takes bytes, we use bytearray for sped.
+		self.resetQueue()
+		return b
 
 	def joinChannel(self, channelObject):
 		"""

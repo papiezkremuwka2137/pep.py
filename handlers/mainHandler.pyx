@@ -180,8 +180,7 @@ class handler(requestsManager.asyncRequestHandler):
 
 				# Token queue built, send it
 				responseTokenString = userToken.token
-				responseData = userToken.queue
-				userToken.resetQueue()
+				responseData = userToken.fetch_queue()
 			except exceptions.tokenNotFoundException:
 				# Token not found. Get the user to be reconnected.
 				responseData = serverPackets.banchoRestart(1)

@@ -51,47 +51,33 @@ if userToken.matchID != -1 and userToken.actionID != actions.MULTIPLAYING and us
 		userToken.relaxing = True
 		userToken.autopiloting = False
 		if userToken.actionID in (0, 1, 14):
-			UserText = packetData["actionText"] + "on Relax"
+			userToken.actionText = packetData["actionText"] + "on Relax"
 		else:
-			UserText = packetData["actionText"] + " on Relax"
-		userToken.actionText = UserText
+			userToken.actionText = packetData["actionText"] + " on Relax"
 		userToken.updateCachedStats()
-		"""
-		if userToken.relaxAnnounce == False:
-			userToken.relaxAnnounce = True
-			userToken.enqueue(serverPackets.notification("You're playing with Relax, we've changed the leaderboard to Relax."))
-		"""
 	#autopiloten
 	elif packetData["actionMods"] & 8192:
 		userToken.autopiloting = True
 		userToken.relaxing = False
 		if userToken.actionID in (0, 1, 14):
-			UserText = packetData["actionText"] + "on Autopilot"
+			userToken.actionText = packetData["actionText"] + "on Autopilot"
 		else:
-			UserText = packetData["actionText"] + " on Autopilot"
-		userToken.actionText = UserText
+			userToken.actionText = packetData["actionText"] + " on Autopilot"
 		userToken.updateCachedStats()
 	else:
 		userToken.relaxing = False
 		userToken.autopiloting = False
-		UserText = packetData["actionText"]
-		userToken.actionText = UserText
+		userToken.actionText = packetData["actionText"]
 		userToken.updateCachedStats()
-		"""
-		if userToken.relaxAnnounce == True:
-			userToken.relaxAnnounce = False
-			userToken.enqueue(serverPackets.notification("You've disabled relax. We've changed back to the Regular leaderboard."))
-		"""
-	#glob.db.execute("UPDATE users_stats SET current_status = %s WHERE id = %s", [UserText, userID])
 	# Enqueue our new user panel and stats to us and our spectators
+	p = (
+		serverPackets.userPanel(userID)
+		+ serverPackets.userStats(userID)
+	)
+	userToken.enqueue(p)
 	if userToken.spectators:
 		for i in userToken.spectators:
-			if i in glob.tokens.tokens:
-				force = glob.tokens.tokens[i] == userToken
-				glob.tokens.tokens[i].enqueue(
-					serverPackets.userPanel(userID, force)
-					+ serverPackets.userStats(userID, force)
-				)
+			glob.tokens.tokens[i].enqueue(p)
 
 	# Console output
-	log.info("{} changed action: {} [{}][{}][{}]".format(username, str(userToken.actionID), userToken.actionText, userToken.actionMd5, userToken.beatmapID))
+	log.info(f"{username} updated their presence! ({userToken.actionText})")
