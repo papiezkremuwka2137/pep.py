@@ -136,7 +136,7 @@ cpdef bytes packData(__data, int dataType):
 
 	return data
 
-cpdef bytes buildPacket(int __packet, list __packetData = None):
+cpdef bytes buildPacket(int __packet, __packetData = None):
 	"""
 	Builds a packet
 
@@ -153,7 +153,6 @@ cpdef bytes buildPacket(int __packet, list __packetData = None):
 	cdef bytes packetBytes = bytes()
 
 	# Pack packet data
-	cdef list i
 	for i in __packetData:
 		packetData += packData(i[0], i[1])
 

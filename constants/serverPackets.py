@@ -165,7 +165,7 @@ def channelJoinSuccess(chan):
 def channelInfo(chan):
 	if chan not in glob.channels.channels:
 		return bytes()
-	channel = glob.channels.channels(chan)
+	channel = glob.channels.channels[chan]
 	return packetHelper.buildPacket(packetIDs.server_channelInfo, (
 		(channel.name, dataTypes.STRING),
 		(channel.description, dataTypes.STRING),
