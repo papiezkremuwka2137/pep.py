@@ -15,6 +15,13 @@ from helpers.realistik_stuff import Timer
 from objects import glob
 import random
 
+# We have our own hashing things. We'd like to keep what they are a secret.
+# This is an issue with an open sec project, so we keep it in a private module.
+try: from realistik.user_utils import verify_password
+except ImportError:
+	log.warning("Using Ripple password hash!")
+	from common.ripple.userUtils import checkLogin as verify_password
+
 # Let people use this without our private module.
 try:
 	from realistik.localise import get_full
@@ -29,7 +36,7 @@ def handle(tornadoRequest):
 	# Data to return
 	responseToken = None
 	responseTokenString = ""
-	responseData = bytes()
+	responseData = bytearray()
 
 	# Get IP from tornado request
 	requestIP = tornadoRequest.getRequestIP()
@@ -63,20 +70,35 @@ def handle(tornadoRequest):
 
 		# Try to get the ID from username
 		username = str(loginData[0])
-		userID = userUtils.getID(username)
+		safe_username = username.rstrip().replace(" ", "_").lower()
 
-		if not userID:
+		# Set stuff from single query rather than many userUtils calls.
+		user_db = glob.db.fetch(
+			"SELECT id, privileges, silence_end, donor_expire, frozen, "
+			"firstloginafterfrozen, freezedate FROM users "
+			"WHERE username_safe = %s LIMIT 1",
+			(safe_username,)
+		)
+
+		if not user_db:
 			# Invalid username
 			log.error(f"Login failed for user {username} (user not found)!")
+			responseData += serverPackets.notification("RealistikOsu: This user does not exist!")
 			raise exceptions.loginFailedException()
-		if not userUtils.checkLogin(userID, loginData[1]):
+
+		userID = user_db["id"]
+		priv = int(user_db["privileges"])
+		silence_end = int(user_db["silence_end"])
+		donor_expire = int(user_db["donor_expire"])
+		
+		if not verify_password(userID, loginData[1]):
 			# Invalid password
 			log.error(f"Login failed for user {username} (invalid password)!")
+			responseData += serverPackets.notification("RealistikOsu: Invalid password!")
 			raise exceptions.loginFailedException()
 
 		# Make sure we are not banned or locked
-		priv = userUtils.getPrivileges(userID)
-		if (not priv & 3 > 0) and priv & (privileges.USER_PENDING_VERIFICATION == 0):
+		if (not priv & 3 > 0) and (not priv & privileges.USER_PENDING_VERIFICATION):
 			log.error(f"Login failed for user {username} (user is banned)!")
 			raise exceptions.loginBannedException()
 
@@ -84,7 +106,7 @@ def handle(tornadoRequest):
 
 		# Verify this user (if pending activation)
 		firstLogin = False
-		if priv & privileges.USER_PENDING_VERIFICATION > 0 or not userUtils.hasVerifiedHardware(userID):
+		if priv & privileges.USER_PENDING_VERIFICATION or not userUtils.hasVerifiedHardware(userID):
 			if userUtils.verifyUser(userID, clientData):
 				# Valid account
 				log.info("Account {} verified successfully!".format(userID))
@@ -123,60 +145,47 @@ def handle(tornadoRequest):
 		# Cache this for less db queries
 		user_restricted = (priv & privileges.USER_NORMAL) and not (priv & privileges.USER_PUBLIC)
 
-		if user_restricted:
-			responseToken.setRestricted()
+		if user_restricted: responseToken.setRestricted()
 		#responseToken.checkRestricted()
 
 		# Check if frozen
-		IsFrozen = glob.db.fetch(f"SELECT frozen, firstloginafterfrozen, freezedate FROM users WHERE id = {userID} LIMIT 1") #ok kids, dont ever use formats in sql queries. here i can do it as the userID comes from a trusted source (this being pep.py itself) so it wont leave me susceptable to sql injection
-		frozen = bool(IsFrozen["frozen"])
+		frozen = user_db["frozen"]
 
 		present = datetime.now()
-		readabledate = datetime.utcfromtimestamp(IsFrozen["freezedate"]).strftime('%d-%m-%Y %H:%M:%S')
-		date2 = datetime.utcfromtimestamp(IsFrozen["freezedate"]).strftime('%d/%m/%Y')
+		readabledate = datetime.utcfromtimestamp(user_db["freezedate"]).strftime('%d-%m-%Y %H:%M:%S')
+		date2 = datetime.utcfromtimestamp(user_db["freezedate"]).strftime('%d/%m/%Y')
 		date3 = present.strftime('%d/%m/%Y')
 		passed = date2 < date3
-		if frozen and passed == False:
+		if not (frozen and passed):
 				responseToken.enqueue(serverPackets.notification(f"The RealistikOsu staff team has found you suspicious and would like to request a liveplay. You have until {readabledate} (UTC) to provide a liveplay to the staff team. This can be done via the RealistikCentral Discord server. Failure to provide a valid liveplay will result in your account being automatically restricted."))
-		elif frozen and passed == True:
+		elif frozen and passed:
 				responseToken.enqueue(serverPackets.notification("Your window for liveplay sumbission has expired! Your account has been restricted as per our cheating policy. Please contact staff for more information on what can be done. This can be done via the RealistikCentral Discord server."))
 				userUtils.restrict(responseToken.userID)
 
-		#we thank unfrozen people
-		first = IsFrozen["firstloginafterfrozen"]
-		
-		if not frozen and first:
+		#we thank unfrozen people		
+		if not frozen and user_db["firstloginafterfrozen"]:
 			responseToken.enqueue(serverPackets.notification("Thank you for providing a liveplay! You have proven your legitemacy and have subsequently been unfrozen. Have fun playing RealistikOsu!"))
 			glob.db.execute(f"UPDATE users SET firstloginafterfrozen = 0 WHERE id = {userID}")
 
 		# Send message if donor expires soon
 		if responseToken.privileges & privileges.USER_DONOR:
-			expireDate = userUtils.getDonorExpire(responseToken.userID)
-			if expireDate-int(time.time()) <= 86400*3:
-				expireDays = round((expireDate-int(time.time()))/86400)
+			if donor_expire-int(time.time()) <= 86400*3:
+				expireDays = round((donor_expire-int(time.time()))/86400)
 				expireIn = "{} days".format(expireDays) if expireDays > 1 else "less than 24 hours"
 				responseToken.enqueue(serverPackets.notification("Your supporter status expires in {}! Following this, you will lose your supporter privileges (such as the further profile customisation options, name changes or profile wipes) and will not be able to access supporter features. If you wish to keep supporting RealistikOsu and you don't want to lose your donor privileges, you can donate again by clicking on 'Donate' on our website.".format(expireIn)))
 
 		# Get only silence remaining seconds
+		responseToken.silenceEndTime = silence_end
 		silenceSeconds = responseToken.getSilenceSecondsLeft()
 		# Get supporter/GMT
 		userGMT = False
-		if not user_restricted:
-			userSupporter = True
-		else:
-			userSupporter = False
+		userSupporter = not user_restricted
 		userTournament = False
-		if responseToken.admin:
-			userGMT = True
-		if responseToken.privileges & privileges.USER_TOURNAMENT_STAFF:
-			userTournament = True
+		userGMT = responseToken.admin
+		userTournament = bool(responseToken.privileges & privileges.USER_TOURNAMENT_STAFF)
 
 		# Server restarting check
-		if glob.restarting:
-			raise exceptions.banchoRestartingException()
-
-		# Send login notification before maintenance message
-		#if glob.banchoConf.config["loginNotification"] != "":
+		if glob.restarting: raise exceptions.banchoRestartingException()
 
 		# Maintenance check
 		if glob.banchoConf.config["banchoMaintenance"]:
@@ -195,48 +204,48 @@ def handle(tornadoRequest):
 		# b20191223.3 = Unknown Ainu build? (Taken from most users osuver in cookiezi.pw)
 		# b20190226.2 = hqOsu (hq-af)
 
-		if glob.conf.extra["mode"]["anticheat"]:
-			# Ainu Client 2020 update
-			if tornadoRequest.request.headers.get("ainu"):
-				log.info(f"Account {userID} tried to use Ainu Client 2020!")
-				if user_restricted:
-					responseToken.enqueue(serverPackets.notification("Note: AINU CLIENT IS DETECTED EVERYWHERE... ITS CREATORS LITERALLY ADDED A WAY TO EASILY DETECT."))
-				else:
-					glob.tokens.deleteToken(userID)
-					userUtils.restrict(userID)
-					userUtils.appendNotes(userID, "User restricted on login for Ainu Client 2020.")
-					raise exceptions.loginCheatClientsException()
-			# Ainu Client 2019
-			elif osuVersion in ["0Ainu", "b20190326.2", "b20190401.22f56c084ba339eefd9c7ca4335e246f80", "b20191223.3"]:
-				log.info(f"Account {userID} tried to use Ainu Client!")
-				if user_restricted:
-					responseToken.enqueue(serverPackets.notification("Note: AINU CLIENT IS DETECTED EVERYWHERE..."))
-				else:
-					glob.tokens.deleteToken(userID)
-					userUtils.restrict(userID)
-					userUtils.appendNotes(userID, "User restricted on login for Ainu Client 2019 (or older).")
-					raise exceptions.loginCheatClientsException()
-			# hqOsu
-			elif osuVersion == "b20190226.2":
-				log.info(f"Account {userID} tried to use hqOsu!")
-				if user_restricted:
-					responseToken.enqueue(serverPackets.notification("Comedian."))
-				else:
-					glob.tokens.deleteToken(userID)
-					userUtils.restrict(userID)
-					userUtils.appendNotes(userID, "User restricted on login for HQOsu (normal).")
-					raise exceptions.loginCheatClientsException()
-			
-			#hqosu legacy
-			elif osuVersion == "b20190716.5":
-				log.info(f"Account {userID} tried to use hqOsu legacy!")
-				if user_restricted:
-					responseToken.enqueue(serverPackets.notification("Comedian."))
-				else:
-					glob.tokens.deleteToken(userID)
-					userUtils.restrict(userID)
-					userUtils.appendNotes(userID, "User restricted on login for HQOsu (legacy).")
-					raise exceptions.loginCheatClientsException()
+		# TODO: Rewrite this mess
+		# Ainu Client 2020 update
+		if tornadoRequest.request.headers.get("ainu"):
+			log.info(f"Account {userID} tried to use Ainu Client 2020!")
+			if user_restricted:
+				responseToken.enqueue(serverPackets.notification("Note: AINU CLIENT IS DETECTED EVERYWHERE... ITS CREATORS LITERALLY ADDED A WAY TO EASILY DETECT."))
+			else:
+				glob.tokens.deleteToken(userID)
+				userUtils.restrict(userID)
+				userUtils.appendNotes(userID, "User restricted on login for Ainu Client 2020.")
+				raise exceptions.loginCheatClientsException()
+		# Ainu Client 2019
+		elif osuVersion in ["0Ainu", "b20190326.2", "b20190401.22f56c084ba339eefd9c7ca4335e246f80", "b20191223.3"]:
+			log.info(f"Account {userID} tried to use Ainu Client!")
+			if user_restricted:
+				responseToken.enqueue(serverPackets.notification("Note: AINU CLIENT IS DETECTED EVERYWHERE..."))
+			else:
+				glob.tokens.deleteToken(userID)
+				userUtils.restrict(userID)
+				userUtils.appendNotes(userID, "User restricted on login for Ainu Client 2019 (or older).")
+				raise exceptions.loginCheatClientsException()
+		# hqOsu
+		elif osuVersion == "b20190226.2":
+			log.info(f"Account {userID} tried to use hqOsu!")
+			if user_restricted:
+				responseToken.enqueue(serverPackets.notification("Comedian."))
+			else:
+				glob.tokens.deleteToken(userID)
+				userUtils.restrict(userID)
+				userUtils.appendNotes(userID, "User restricted on login for HQOsu (normal).")
+				raise exceptions.loginCheatClientsException()
+		
+		#hqosu legacy
+		elif osuVersion == "b20190716.5":
+			log.info(f"Account {userID} tried to use hqOsu legacy!")
+			if user_restricted:
+				responseToken.enqueue(serverPackets.notification("Comedian."))
+			else:
+				glob.tokens.deleteToken(userID)
+				userUtils.restrict(userID)
+				userUtils.appendNotes(userID, "User restricted on login for HQOsu (legacy).")
+				raise exceptions.loginCheatClientsException()
 
 		# Send all needed login packets
 		responseToken.enqueue(
@@ -295,8 +304,7 @@ def handle(tornadoRequest):
 		responseToken.country = country
 
 		# Set country in db if user has no country (first bancho login)
-		if userUtils.getCountry(userID) == "XX":
-			userUtils.setCountry(userID, countryLetters)
+		if userUtils.getCountry(userID) == "XX": userUtils.setCountry(userID, countryLetters)
 
 		# Send to everyone our userpanel if we are not restricted or tournament
 		if not responseToken.restricted:
@@ -305,8 +313,11 @@ def handle(tornadoRequest):
 		#creating notification
 		t.end()
 		t_str = t.time_str()
-		online_users = int(glob.redis.get("ripple:online_users").decode("utf-8")) # TODO: Use the len thing. Too lazy rn
-		notif = f"""- Online Users: {online_users}\n- {random.choice(glob.banchoConf.config['Quotes'])}"""
+		online_users = len(glob.tokens.tokens)
+		# Wylie has his own quote he gets to enjoy only himself lmfao. UPDATE: Electro gets it too.
+		if userID in (4674, 3277): quote = "I lost an S because I saw her lewd"
+		else: quote = random.choice(glob.banchoConf.config['Quotes'])
+		notif = f"""- Online Users: {online_users}\n- {quote}"""
 		if responseToken.admin: notif += f"\nAuthentication attempt took {t_str}!"
 		responseToken.enqueue(serverPackets.notification(notif))
 		
@@ -359,4 +370,4 @@ def handle(tornadoRequest):
 			log.info("Invalid bancho login request from **{}** (insufficient POST data)".format(requestIP), "bunker")
 
 		# Return token string and data
-		return responseTokenString, responseData
+		return responseTokenString, bytes(responseData)

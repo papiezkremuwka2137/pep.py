@@ -1,5 +1,8 @@
+# This handles removing cached passwords from cache when the user has their pass
+# changed.
 from common.redis import generalPubSubHandler
 from objects import glob
+from helpers.realistik_stuff import cached_passwords
 
 class handler(generalPubSubHandler.generalPubSubHandler):
 	def __init__(self):
@@ -12,6 +15,4 @@ class handler(generalPubSubHandler.generalPubSubHandler):
 		data = super().parseData(data)
 		if data is None:
 			return
-		targetToken = glob.tokens.getTokenFromUserID(data["user_id"])
-		if targetToken is not None:
-			targetToken.refresh_privs()
+		cached_passwords.pop(data["user_id"], None)

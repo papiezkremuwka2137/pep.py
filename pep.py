@@ -44,6 +44,7 @@ from pubSubHandlers import notificationHandler
 from pubSubHandlers import updateSilenceHandler
 from pubSubHandlers import updateStatsHandler
 from pubSubHandlers import refreshPrivsHandler
+from pubSubHandlers import changePassword
 
 # WE GOT DELTA.
 try:
@@ -114,7 +115,7 @@ if __name__ == "__main__":
 
 		# Create data folder if needed
 		log.info("Checking folders... ")
-		paths = [".data"]
+		paths = (".data")
 		for i in paths:
 			if not os.path.exists(i):
 				os.makedirs(i, 0o770)
@@ -280,15 +281,10 @@ if __name__ == "__main__":
 			log.warning("Error while starting Datadog client! Please check your config.ini and run the server again")
 
 		# Server port
-		serverPort = 0
-		try:
-			serverPort = int(glob.conf.config["server"]["port"])
-		except ValueError:
-			log.error("Invalid server port! Please check your config.ini and run the server again")
+		serverPort = int(glob.conf.config["server"]["port"])
 
 		# Server start message and console output
-		log.logMessage("Server started!", discord="bunker", of="info.txt", stdout=False)
-		log.info(f"Tornado listening for HTTP(s) clients on 127.0.0.1:{serverPort}...")
+		log.info(f"pep.py listening for HTTP(s) clients on 127.0.0.1:{serverPort}...")
 
 		# Connect to pubsub channels
 		pubSub.listener(glob.redis, {
@@ -300,7 +296,8 @@ if __name__ == "__main__":
 			"peppy:ban": banHandler.handler(),
 			"peppy:notification": notificationHandler.handler(),
 			"peppy:set_main_menu_icon": setMainMenuIconHandler.handler(),
-			"peppy:refrest_privs": refreshPrivsHandler.handler()
+			"peppy:refresh_privs": refreshPrivsHandler.handler(),
+			"peppy:change_pass": changePassword.handler()
 		}).start()
 
 		# Start tornado

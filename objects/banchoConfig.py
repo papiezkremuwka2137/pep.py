@@ -46,7 +46,13 @@ class banchoConfig:
 			"Spelchecked!",
 			"Screw you segmentation!",
 			"I forgot how to decrypt bcrypt",
-			"Introducing  :  Time"
+			"Introducing  :  Time",
+			"Python to the moon!",
+			"We have the best devsSyntaxError: good_devs is not defined.",
+			"Powered by electricity!",
+			"i still can't decrypt bcrypt",
+			"how to run py on 7m??",
+			"It may not work, but it is fast!"
 		]
 
 

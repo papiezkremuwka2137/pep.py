@@ -37,11 +37,8 @@ class token:
 		)
 		self.username = data_db["username"]
 		self.safeUsername = data_db["username_safe"]
-		self.privileges = data_db["privileges"]
-		self.silenceEndTime = data_db["silence_end"]
-
-		# Bruh.
-		self.privileges = int(self.privileges)
+		self.privileges = int(data_db["privileges"])
+		self.silenceEndTime = int(data_db["silence_end"])
 
 		self.irc = irc
 		self.kicked = False
@@ -141,13 +138,12 @@ class token:
 
 		:param bytes_: (packet) bytes to enqueue
 		"""
+
+		# Stop queuing stuff to the bot so we dont run out of mem
+		if self.userID == 999: return
 		try:
 			# Acquire the buffer lock
 			self._bufferLock.acquire()
-
-			# Never enqueue for IRC clients or Bot
-			if self.irc or self.userID < 999:
-				return
 
 			# Avoid memory leaks
 			if len(bytes_) < MAX_BYTES:
