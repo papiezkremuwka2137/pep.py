@@ -2,7 +2,10 @@
 # changed.
 from common.redis import generalPubSubHandler
 from objects import glob
-from helpers.realistik_stuff import cached_passwords
+try:
+	from realistik.user_utils import cached_passwords
+	has_pass = True
+except ImportError: has_pass = False
 
 class handler(generalPubSubHandler.generalPubSubHandler):
 	def __init__(self):
@@ -12,6 +15,7 @@ class handler(generalPubSubHandler.generalPubSubHandler):
 		}
 
 	def handle(self, data):
+		if not has_pass: return
 		data = super().parseData(data)
 		if data is None:
 			return
