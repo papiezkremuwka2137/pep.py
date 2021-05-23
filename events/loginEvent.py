@@ -316,6 +316,8 @@ def handle(tornadoRequest):
 		online_users = len(glob.tokens.tokens)
 		# Wylie has his own quote he gets to enjoy only himself lmfao. UPDATE: Electro gets it too.
 		if userID in (4674, 3277): quote = "I lost an S because I saw her lewd"
+		# Ced also gets his own AS HE DOESNT WANT TO CHECK FAST SPEED.
+		elif userID == 1002: quote = "juSt Do iT"
 		else: quote = random.choice(glob.banchoConf.config['Quotes'])
 		notif = f"""- Online Users: {online_users}\n- {quote}"""
 		if responseToken.admin: notif += f"\nAuthentication attempt took {t_str}!"

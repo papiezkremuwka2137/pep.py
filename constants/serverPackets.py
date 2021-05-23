@@ -10,7 +10,8 @@ from constants.rosuprivs import (
 	OWNER,
 	BAT,
 	MODERATOR,
-	DEVELOPER
+	DEVELOPER,
+	DEV_SUPPORTER
 )
 
 """ Login errors packets """
@@ -105,7 +106,7 @@ def userPanel(userID, force = False):
 		userRank |= userRanks.MOD
 	elif userToken.privileges == OWNER:
 		userRank |= userRanks.PEPPY
-	elif userToken.privileges == DEVELOPER:
+	elif userToken.privileges in (DEVELOPER, DEV_SUPPORTER):
 		userRank |= userRanks.ADMIN
 	elif userToken.privileges == MODERATOR:
 		userRank |= userRanks.MOD
