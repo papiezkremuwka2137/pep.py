@@ -21,6 +21,7 @@ This fork of pep.py has been developed specifically to suit the need of Realisti
 - Extended 3rd party API support
 - Customised HWID system
 - Extended in-game bot commands
+- Python 3.9 support!
 
 ## Requirements
 To run pep.py, there is an list of requirements to ensure the server runs at all.
