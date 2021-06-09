@@ -559,7 +559,6 @@ class token:
 
 		:return:
 		"""
-		self.restricted = True
 		chat.sendMessage(glob.BOT_NAME, self.username, "Your account has been restricted! Please contact the RealistikOsu staff through our Discord server for more info!")
 
 	def resetRestricted(self):
