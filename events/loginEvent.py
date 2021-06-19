@@ -216,7 +216,7 @@ def handle(tornadoRequest):
 				userUtils.appendNotes(userID, "User restricted on login for Ainu Client 2020.")
 				raise exceptions.loginCheatClientsException()
 		# Ainu Client 2019
-		elif osuVersion in ["0Ainu", "b20190326.2", "b20190401.22f56c084ba339eefd9c7ca4335e246f80", "b20191223.3"]:
+		elif osuVersion in ("0Ainu", "b20190326.2", "b20190401.22f56c084ba339eefd9c7ca4335e246f80", "b20191223.3"):
 			log.info(f"Account {userID} tried to use Ainu Client!")
 			if user_restricted:
 				responseToken.enqueue(serverPackets.notification("Note: AINU CLIENT IS DETECTED EVERYWHERE..."))
@@ -246,6 +246,19 @@ def handle(tornadoRequest):
 				userUtils.restrict(userID)
 				userUtils.appendNotes(userID, "User restricted on login for HQOsu (legacy).")
 				raise exceptions.loginCheatClientsException()
+		# Budget Hacked client.
+		elif osuVersion.startswith("skoot"):
+			if user_restricted: responseToken.enqueue(serverPackets.notification("Comedian."))
+			else:
+				glob.tokens.deleteToken(userID)
+				userUtils.restrict(userID)
+				userUtils.appendNotes(userID, "Wack 2016 Scooter client.")
+				raise exceptions.loginCheatClientsException()
+		
+		# Blanket cover for most retard clients, force update.
+		elif osuVersion[0] != "b":
+			glob.tokens.deleteToken(userID)
+			raise exceptions.haxException()
 
 		# Send all needed login packets
 		responseToken.enqueue(
