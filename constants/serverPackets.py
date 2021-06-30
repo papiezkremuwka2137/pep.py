@@ -102,18 +102,12 @@ def userPanel(userID, force = False):
 	# Get username colour according to rank
 	# Only admins and normal users are currently supported
 	userRank = 0
-	if username == glob.BOT_NAME:
-		userRank |= userRanks.MOD
-	elif userToken.privileges == OWNER:
-		userRank |= userRanks.PEPPY
-	elif userToken.privileges in (DEVELOPER, DEV_SUPPORTER):
-		userRank |= userRanks.ADMIN
-	elif userToken.privileges == MODERATOR:
-		userRank |= userRanks.MOD
-	elif userToken.privileges & privileges.USER_DONOR:
-		userRank |= userRanks.SUPPORTER
-	else:
-		userRank |= userRanks.NORMAL
+	if username == glob.BOT_NAME: userRank |= userRanks.MOD
+	elif userToken.privileges == OWNER: userRank |= userRanks.PEPPY
+	elif userToken.privileges in (DEVELOPER, DEV_SUPPORTER): userRank |= userRanks.ADMIN
+	elif userToken.privileges == MODERATOR: userRank |= userRanks.MOD
+	elif userToken.privileges & privileges.USER_DONOR: userRank |= userRanks.SUPPORTER
+	else: userRank |= userRanks.NORMAL
 
 	return packetHelper.buildPacket(packetIDs.server_userPanel,
 	(

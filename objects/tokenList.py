@@ -52,7 +52,7 @@ class tokenList:
 				userUtils.deleteBanchoSessions(self.tokens[token].userID, self.tokens[token].ip)
 			t = self.tokens.pop(token)
 			del t
-			glob.redis.decr("ripple:online_users")
+			glob.redis.set("ripple:online_users", len(glob.tokens.tokens))
 
 	def getUserIDFromToken(self, token):
 		"""

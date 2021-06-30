@@ -114,7 +114,7 @@ if __name__ == "__main__":
 
 		# Create data folder if needed
 		log.info("Checking folders... ")
-		paths = (".data")
+		paths = (".data",)
 		for i in paths:
 			if not os.path.exists(i):
 				os.makedirs(i, 0o770)
