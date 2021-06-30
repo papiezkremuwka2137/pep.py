@@ -1,7 +1,6 @@
-from common.constants import bcolors
-from objects import glob
+from common.constants import bcolors as bcolours # :trolley:
 
-def printServerStartHeader(asciiArt=True):
+def printServerStartHeader(asciiArt: bool = True):
 	"""
 	Print server start message
 
@@ -9,27 +8,18 @@ def printServerStartHeader(asciiArt=True):
 	:return:
 	"""
 	if asciiArt:
-		printColored(r""" ______   ______   ______       ______   __  __    
+		print_coloured(r""" ______   ______   ______       ______   __  __    
 /_____/\ /_____/\ /_____/\     /_____/\ /_/\/_/\   
 \:::_ \ \\::::_\/_\:::_ \ \    \:::_ \ \\ \ \ \ \  
  \:(_) \ \\:\/___/\\:(_) \ \ ___\:(_) \ \\:\_\ \ \ 
   \: ___\/ \::___\/_\: ___\//__/\\: ___\/ \::::_\/ 
    \ \ \    \:\____/\\ \ \  \::\ \\ \ \     \::\ \ 
-    \_\/     \_____\/ \_\/   \:_\/ \_\/      \__\/ """,bcolors.GREEN)
+    \_\/     \_____\/ \_\/   \:_\/ \_\/      \__\/ """,bcolours.GREEN)
 
-	printColored(f"# PEP.PY - The RealistikOsu! Bancho emulator.", bcolors.BLUE)
-	printColored(f"# This is a fork of the now deprecated pep.py by the Ripple Team.", bcolors.BLUE)
+	print_coloured(f"# PEP.PY - The RealistikOsu! Bancho emulator.", bcolours.BLUE)
+	print_coloured(f"# This is a fork of the now deprecated pep.py by the Ripple Team.", bcolours.BLUE)
 
-def printNoNl(string):
-	"""
-	Print a string without \n at the end
-
-	:param string: string to print
-	:return:
-	"""
-	print(string, end="")
-
-def printColored(string, color):
+def print_coloured(string: str, color: bcolours):
 	"""
 	Print a colored string
 
@@ -37,28 +27,4 @@ def printColored(string, color):
 	:param color: ANSI color code
 	:return:
 	"""
-	print("{}{}{}".format(color, string, bcolors.ENDC))
-
-def printError():
-	"""
-	Print a red "Error"
-
-	:return:
-	"""
-	printColored("Error", bcolors.RED)
-
-def printDone():
-	"""
-	Print a green "Done"
-
-	:return:
-	"""
-	printColored("Done", bcolors.GREEN)
-
-def printWarning():
-	"""
-	Print a yellow "Warning"
-
-	:return:
-	"""
-	printColored("Warning", bcolors.YELLOW)
+	print("{}{}{}".format(color, string, bcolours.ENDC))

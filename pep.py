@@ -13,7 +13,6 @@ import json
 import shutil
 
 from common import generalUtils, agpl
-from common.constants import bcolors
 from common.db import dbConnector
 from common.ddog import datadogClient
 from logger import log
@@ -160,8 +159,7 @@ if __name__ == "__main__":
 			glob.banchoConf = banchoConfig.banchoConfig()
 			log.info("Complete!")
 		except:
-			consoleHelper.printError()
-			consoleHelper.printColored("Error while loading bancho_settings. Please make sure the table in DB has all the required rows", bcolors.RED)
+			log.error("Error while loading bancho_settings. Please make sure the table in DB has all the required rows")
 			raise
 
 		# Delete old bancho sessions
@@ -175,16 +173,14 @@ if __name__ == "__main__":
 			glob.pool = ThreadPool(int(glob.conf.config["server"]["threads"]))
 			log.info("Complete!")
 		except ValueError:
-			consoleHelper.printError()
-			consoleHelper.printColored("Error while creating threads pool. Please check your config.ini and run the server again", bcolors.RED)
+			log.error("Error while creating threads pool. Please check your config.ini and run the server again")
 
 		try:
 			log.info("Loading chat filters... ")
 			glob.chatFilters = chatFilters.chatFilters()
 			log.info("Complete!")
 		except:
-			consoleHelper.printError()
-			consoleHelper.printColored("Error while loading chat filters. Make sure there is a filters.txt file present", bcolors.RED)
+			log.error("Error while loading chat filters. Make sure there is a filters.txt file present")
 			raise
 
 		# Start fokabot

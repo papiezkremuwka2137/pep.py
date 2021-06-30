@@ -7,7 +7,6 @@ import time
 
 import psutil
 
-from common.constants import bcolors
 from logger import log
 from constants import serverPackets
 from helpers import consoleHelper
@@ -22,7 +21,7 @@ def dispose():
 	"""
 	print("> Disposing server... ")
 	glob.fileBuffers.flushAll()
-	consoleHelper.printColored("Goodbye!", bcolors.GREEN)
+	log.info(f"Server closing! Bye!")
 
 def runningUnderUnix():
 	"""

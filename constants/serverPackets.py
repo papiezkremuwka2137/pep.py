@@ -99,7 +99,7 @@ def userPanel(userID, force = False):
 	latitude = userToken.getLatitude()
 	longitude = userToken.getLongitude()
 
-	# Get username color according to rank
+	# Get username colour according to rank
 	# Only admins and normal users are currently supported
 	userRank = 0
 	if username == glob.BOT_NAME:
