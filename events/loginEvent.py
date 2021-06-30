@@ -29,6 +29,9 @@ except ImportError:
 	log.warning("Using RippleAPI geolocation.")
 	from helpers.locationHelper import get_full
 
+UNFREEZE_NOTIF = serverPackets.notification("Thank you for providing a liveplay! You have proven your legitemacy and have subsequently been unfrozen. Have fun playing RealistikOsu!")
+FREEZE_RES_NOTIF = serverPackets.notification("Your window for liveplay sumbission has expired! Your account has been restricted as per our cheating policy. Please contact staff for more information on what can be done. This can be done via the RealistikCentral Discord server.")
+
 def handle(tornadoRequest):
 	# I wanna benchmark!
 	t = Timer()
@@ -159,12 +162,12 @@ def handle(tornadoRequest):
 		if frozen and not passed:
 				responseToken.enqueue(serverPackets.notification(f"The RealistikOsu staff team has found you suspicious and would like to request a liveplay. You have until {readabledate} (UTC) to provide a liveplay to the staff team. This can be done via the RealistikCentral Discord server. Failure to provide a valid liveplay will result in your account being automatically restricted."))
 		elif frozen and passed:
-				responseToken.enqueue(serverPackets.notification("Your window for liveplay sumbission has expired! Your account has been restricted as per our cheating policy. Please contact staff for more information on what can be done. This can be done via the RealistikCentral Discord server."))
+				responseToken.enqueue(FREEZE_RES_NOTIF)
 				userUtils.restrict(responseToken.userID)
 
 		#we thank unfrozen people		
 		if not frozen and user_db["firstloginafterfrozen"]:
-			responseToken.enqueue(serverPackets.notification("Thank you for providing a liveplay! You have proven your legitemacy and have subsequently been unfrozen. Have fun playing RealistikOsu!"))
+			responseToken.enqueue(UNFREEZE_NOTIF)
 			glob.db.execute(f"UPDATE users SET firstloginafterfrozen = 0 WHERE id = {userID}")
 
 		# Send message if donor expires soon

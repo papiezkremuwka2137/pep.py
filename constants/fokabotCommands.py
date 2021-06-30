@@ -1444,36 +1444,15 @@ commands = [
 	{
 		"trigger": "!roll",
 		"callback": roll
-	}, {
-		"trigger": "!faq",
-		"syntax": "<name>",
-		"callback": faq
-	}, {
+	},{
 		"trigger": "!report",
 		"callback": report
-	}, {
-		"trigger": "!ppboard",
-		"syntax": "<relax/vanilla>",
-		"callback": usePPBoard
-	}, {
-		"trigger": "!scoreboard",
-		"syntax": "<relax/vanilla>",
-		"callback": useScoreBoard
-	}, {
-		"trigger": "!whitelist",
-		"privileges": privileges.ADMIN_BAN_USERS,
-		"syntax": "<target> <relax/vanilla>",
-		"callback": whitelistUserPPLimit
-	}, {
+	},{
 		"trigger": "!announce",
 		"syntax": "<announcement>",
 		"privileges": privileges.ADMIN_SEND_ALERTS,
 		"callback": postAnnouncement
-	},	#{
-		#"trigger": "!ask",
-		#"syntax": "<question>",
-		#"callback": ask
-	#}, {
+	},
 	{
 		"trigger": "!alert",
 		"syntax": "<message>",
@@ -1599,11 +1578,6 @@ commands = [
 		"privileges": privileges.USER_TOURNAMENT_STAFF,
 		"syntax": "<subcommand>",
 		"callback": multiplayer
-	}, {
-		"trigger": "!switchserver",
-		"privileges": privileges.ADMIN_MANAGE_SERVERS,
-		"syntax": "<username> <server_address>",
-		"callback": switchServer
 	},{
 		"trigger": "!username",
 		"syntax": "<new username>",
