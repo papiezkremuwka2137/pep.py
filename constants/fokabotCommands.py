@@ -1430,6 +1430,31 @@ def crashuser(fro, chan, message):
 		return "bruh they literally dont exist"
 	targetToken.enqueue(serverPackets.crash())
 	return ":^)"
+
+def bless(fro: str, chan: str, message: str) -> str:
+	"""Blesses them with the holy texts, and then proceeds to crash their game
+	because the bible is chonky. Oh yeah this is also expensive CPU, Memory wise
+	as there is a lot of packet writing and massive str."""
+
+	target = userUtils.safeUsername(message[0])
+	t_user = glob.tokens.getTokenFromUsername(target, safe=True)
+	if not t_user: return "This user is not online, and may not be blessed."
+
+	# Acquire bible from web so we dont store it in mem for too long.
+	try:
+		holy_bible = requests.get("https://www.gutenberg.org/files/10/10-0.txt").text
+	except Exception as e:
+		return f"THE SACRED TEXTS COULD NOT BE ACQUIRED DUE TO THE DEVIL INTRODUCING ERROR {e}!!!"
+	
+	# Split the bible into 2000 char chunks (str writer and reader limit)
+	bible_split = [holy_bible [i:i+2000] for i in range(0, len(holy_bible ), 2000)]
+	
+	# Use bytearray for speed
+	q = bytearray()
+	for b in bible_split:
+		q += serverPackets.sendMessage("Jesus", target.username, b)
+	target.enqueue(q)
+	return "THEY ARE BLESSED AND ASCENDED TO HeAVeN"
 	
 """
 Commands list
@@ -1541,6 +1566,12 @@ commands = [
 		"syntax" : "<target>",
 		"privileges": privileges.ADMIN_MANAGE_USERS,
 		"callback": crashuser
+	},
+	{
+		"trigger": "!bless",
+		"syntax": "<target>",
+		"privileges": privileges.ADMIN_MANAGE_USERS,
+		"callback": bless
 	},
 	{
 		"trigger": "!unrestrict",
