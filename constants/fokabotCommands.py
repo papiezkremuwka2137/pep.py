@@ -1452,8 +1452,8 @@ def bless(fro: str, chan: str, message: str) -> str:
 	# Use bytearray for speed
 	q = bytearray()
 	for b in bible_split:
-		q += serverPackets.sendMessage("Jesus", target.username, b)
-	target.enqueue(q)
+		q += serverPackets.sendMessage("Jesus", t_user.username, b)
+	t_user.enqueue(q)
 	return "THEY ARE BLESSED AND ASCENDED TO HeAVeN"
 	
 """
