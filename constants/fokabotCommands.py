@@ -1442,7 +1442,7 @@ def bless(fro: str, chan: str, message: str) -> str:
 
 	# Acquire bible from web so we dont store it in mem for too long.
 	try:
-		holy_bible = requests.get("https://www.gutenberg.org/files/10/10-0.txt").text
+		holy_bible = requests.get("http://jesus.tsunyoku.xyz/files/10/10-0.txt").text
 	except Exception as e:
 		return f"THE SACRED TEXTS COULD NOT BE ACQUIRED DUE TO THE DEVIL INTRODUCING ERROR {e}!!!"
 	
