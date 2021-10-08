@@ -44,6 +44,7 @@ from pubSubHandlers import updateSilenceHandler
 from pubSubHandlers import updateStatsHandler
 from pubSubHandlers import refreshPrivsHandler
 from pubSubHandlers import changePassword
+from pubSubHandlers import bot_msg_handler
 
 # WE GOT DELTA.
 try:
@@ -293,7 +294,8 @@ if __name__ == "__main__":
 			"peppy:notification": notificationHandler.handler(),
 			"peppy:set_main_menu_icon": setMainMenuIconHandler.handler(),
 			"peppy:refresh_privs": refreshPrivsHandler.handler(),
-			"peppy:change_pass": changePassword.handler()
+			"peppy:change_pass": changePassword.handler(),
+			"peppy:bot_msg": bot_msg_handler.handler()
 		}).start()
 
 		# Start tornado
