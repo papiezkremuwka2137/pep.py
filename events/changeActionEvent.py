@@ -46,29 +46,34 @@ if userToken.matchID != -1 and userToken.actionID != actions.MULTIPLAYING and us
 	userToken.actionMods = packetData["actionMods"]
 	userToken.beatmapID = packetData["beatmapID"]
 
-	
-	if packetData["actionMods"] & 128:
-		userToken.relaxing = True
-		userToken.autopiloting = False
-		if userToken.actionID in (0, 1, 14):
-			userToken.actionText = packetData["actionText"] + "on Relax"
+	if userToken.actionID != 1:
+		if packetData["actionMods"] & 128:
+			# Only reload on mode change.
+			if not userToken.relaxing: userToken.updateCachedStats()
+			userToken.relaxing = True
+			userToken.autopiloting = False
+			if userToken.actionID in (0, 1, 14):
+				userToken.actionText = packetData["actionText"] + "on Relax"
+			else:
+				userToken.actionText = packetData["actionText"] + " on Relax"
+		#autopiloten
+		elif packetData["actionMods"] & 8192:
+			# Only reload on mode change.
+			if not userToken.autopiloting: userToken.updateCachedStats()
+			userToken.autopiloting = True
+			userToken.relaxing = False
+			if userToken.actionID in (0, 1, 14):
+				userToken.actionText = packetData["actionText"] + "on Autopilot"
+			else:
+				userToken.actionText = packetData["actionText"] + " on Autopilot"
+			userToken.updateCachedStats()
 		else:
-			userToken.actionText = packetData["actionText"] + " on Relax"
-		userToken.updateCachedStats()
-	#autopiloten
-	elif packetData["actionMods"] & 8192:
-		userToken.autopiloting = True
-		userToken.relaxing = False
-		if userToken.actionID in (0, 1, 14):
-			userToken.actionText = packetData["actionText"] + "on Autopilot"
-		else:
-			userToken.actionText = packetData["actionText"] + " on Autopilot"
-		userToken.updateCachedStats()
-	else:
-		userToken.relaxing = False
-		userToken.autopiloting = False
-		userToken.actionText = packetData["actionText"]
-		userToken.updateCachedStats()
+			if (not userToken.autopiloting) and (not userToken.relaxing):
+				userToken.updateCachedStats()
+			userToken.relaxing = False
+			userToken.autopiloting = False
+			userToken.actionText = packetData["actionText"]
+			userToken.updateCachedStats()
 	# Enqueue our new user panel and stats to us and our spectators
 	p = (
 		serverPackets.userPanel(userID)

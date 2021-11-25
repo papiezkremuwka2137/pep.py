@@ -112,12 +112,12 @@ def handle(tornadoRequest):
 		if priv & privileges.USER_PENDING_VERIFICATION or not userUtils.hasVerifiedHardware(userID):
 			if userUtils.verifyUser(userID, clientData):
 				# Valid account
-				log.info("Account {} verified successfully!".format(userID))
+				log.info(f"Account {userID} verified successfully!")
 				glob.verifiedCache[str(userID)] = 1
 				firstLogin = True
 			else:
 				# Multiaccount detected
-				log.info("Account {} NOT verified!".format(userID))
+				log.info(f"Account {userID} NOT verified!")
 				glob.verifiedCache[str(userID)] = 0
 				raise exceptions.loginBannedException()
 
