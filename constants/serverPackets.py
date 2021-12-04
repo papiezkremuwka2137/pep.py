@@ -8,7 +8,6 @@ from helpers import packetHelper
 from objects import glob
 from constants.rosuprivs import (
 	OWNER,
-	BAT,
 	MODERATOR,
 	DEVELOPER,
 	DEV_SUPPORTER
